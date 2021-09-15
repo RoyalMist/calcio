@@ -1,0 +1,8 @@
+**/.idea/
+**/artifacts/
+**/dist/
+**/dist-ssr/
+**/node_modules/
+**/.DS_Store
+*.local
+calcio
