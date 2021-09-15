@@ -36,7 +36,7 @@ var Module = fx.Provide(New)
 func New() *Config {
 	viper.SetDefault(ApiHost, ":4000")
 	viper.SetDefault(DbDriver, "postgres")
-	viper.SetDefault(DbUrl, "host=localhost port=5432 user=postgres dbname=change password=postgres sslmode=disable")
+	viper.SetDefault(DbUrl, "host=localhost port=5432 user=postgres dbname=calcio password=postgres sslmode=disable")
 	viper.AutomaticEnv()
 
 	return &Config{

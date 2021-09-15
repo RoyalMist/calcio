@@ -3,6 +3,7 @@
 **/dist/
 **/dist-ssr/
 **/node_modules/
-**/.DS_Store
+**/.DS_Store/
+**/out/
 *.local
 calcio
