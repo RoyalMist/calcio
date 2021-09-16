@@ -78,41 +78,18 @@ jobs:
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Build Api
         run: go build
-      - name: Archive Dist
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-dist
-          path: ${{ env.DIST }}
-          retention-days: 1
-
-  analysis:
-    name: Static Code Analysis
-    needs: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Download Web Dist
-        uses: actions/download-artifact@v2
-        with:
-          name: web-dist
-      - name: Untar Dist
-        run: |
-          rm -rf ${{ env.WEB_DIR }}
-          tar -xvf dist.tar
-          rm dist.tar
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
       - name: Run Vet
         run: go vet ./...
       - name: Run Gosec Security Scanner
         uses: securego/gosec@master
         with:
           args: ./...
+      - name: Archive Dist
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-dist
+          path: ${{ env.DIST }}
+          retention-days: 1
 
   tests:
     name: Unit Tests
@@ -188,7 +165,7 @@ jobs:
     name: Release
     if: ${{ contains(github.ref, 'refs/tags/') }}
     needs:
-      - analysis
+      - build
       - tests
       - nightly
     runs-on: ubuntu-20.04
@@ -226,7 +203,7 @@ jobs:
         run: echo ${{ steps.docker_build.outputs.digest }}
 
   distribute:
-    name: Build
+    name: Distribution
     if: ${{ contains(github.ref, 'refs/tags/') }}
     needs: release
     runs-on: ubuntu-20.04
