@@ -69,7 +69,7 @@ jobs:
         run: |
           rm -rf ${{ env.WEB_DIR }}
           mkdir web
-          tar -C ${{ env.WEB_DIR }} -xvf dist.tar
+          tar -xvf dist.tar
           rm dist.tar
           ls -la
           cd web
