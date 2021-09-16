@@ -66,7 +66,7 @@ jobs:
         with:
           name: web-dist
       - name: Untar Dist
-        run: tar -xf file.name.tar -C ${{ env.WEB_DIR }}
+        run: tar -xf dist.tar -C ${{ env.WEB_DIR }}
       - uses: actions/cache@v2
         with:
           path: |
