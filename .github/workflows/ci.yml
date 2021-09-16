@@ -264,10 +264,10 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Build Api
-        run: go build -o ${{ env.DIST }}:${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
+        run: go build -o ${{ env.DIST }}-${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
       - name: Archive Dist
         uses: actions/upload-artifact@v2
         with:
-          name: distribution-${{ env.DIST }}:${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
+          name: distribution-${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
           path: ${{ env.DIST }}-${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
           retention-days: 30
