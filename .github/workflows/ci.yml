@@ -230,7 +230,10 @@ jobs:
   distribute:
     name: Distribution
     if: ${{ contains(github.ref, 'refs/tags/') }}
-    needs: release
+    needs:
+      - analysis
+      - tests
+      - nightly
     runs-on: ubuntu-20.04
     strategy:
       matrix:
