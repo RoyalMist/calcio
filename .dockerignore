@@ -1,0 +1,11 @@
+**/.idea/
+**/.github/
+**/api/
+**/web/
+.dockerignore
+.gitignore
+Dockerfile
+go.mod
+go.sum
+main.go
+README.md
