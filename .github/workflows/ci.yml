@@ -70,6 +70,7 @@ jobs:
           rm -rf ${{ env.WEB_DIR }}
           mkdir web
           tar -C ${{ env.WEB_DIR }} -xvf dist.tar
+          ls -la
       - uses: actions/cache@v2
         with:
           path: |
