@@ -253,7 +253,10 @@ jobs:
         with:
           name: web-dist
       - name: Untar Dist
-        run: tar -xf dist.tar -C ${{ env.WEB_DIR }}
+        run: |
+          rm -rf ${{ env.WEB_DIR }}
+          tar -xvf dist.tar
+          rm dist.tar
       - uses: actions/cache@v2
         with:
           path: |
