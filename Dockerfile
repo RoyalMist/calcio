@@ -6,7 +6,7 @@ RUN apk update && \
     apk upgrade && \
     apk add --no-cache \
     ca-certificates && \
-    update-ca-certificates && \
+    update-ca-certificates
 WORKDIR /opt
 COPY --chown=nobody:nobody calcio .
 USER nobody:nobody
