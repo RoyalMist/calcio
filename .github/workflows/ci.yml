@@ -68,12 +68,8 @@ jobs:
       - name: Untar Dist
         run: |
           rm -rf ${{ env.WEB_DIR }}
-          mkdir web
           tar -xvf dist.tar
           rm dist.tar
-          ls -la
-          cd web
-          ls -la
       - uses: actions/cache@v2
         with:
           path: |
