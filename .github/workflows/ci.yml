@@ -269,5 +269,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: distribution-${{ env.DIST }}:${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: ${{ env.DIST }}:${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
+          path: ${{ env.DIST }}-${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
           retention-days: 30
