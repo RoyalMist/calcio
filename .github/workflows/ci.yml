@@ -77,7 +77,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Build Api
-        run: go build -v ./...
+        run: go build
       - name: Archive Dist
         uses: actions/upload-artifact@v2
         with:
@@ -94,6 +94,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Download Web Dist
+        uses: actions/download-artifact@v2
+        with:
+          name: web-dist
+      - name: Untar Dist
+        run: |
+          rm -rf ${{ env.WEB_DIR }}
+          tar -xvf dist.tar
+          rm dist.tar
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -126,6 +135,15 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Download Web Dist
+        uses: actions/download-artifact@v2
+        with:
+          name: web-dist
+      - name: Untar Dist
+        run: |
+          rm -rf ${{ env.WEB_DIR }}
+          tar -xvf dist.tar
+          rm dist.tar
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
