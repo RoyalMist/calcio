@@ -268,6 +268,6 @@ jobs:
       - name: Archive Dist
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ matrix.os }}-${{ matrix.arch }}:${{ steps.tagName.outputs.tag }}
-          path: ${{ env.DIST }}
+          name: distribution-${{ env.DIST }}:${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
+          path: ${{ env.DIST }}:${{ steps.tagName.outputs.tag }}-${{ matrix.os }}-${{ matrix.arch }}
           retention-days: 30
