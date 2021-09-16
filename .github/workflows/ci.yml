@@ -78,12 +78,6 @@ jobs:
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Build Api
         run: go build
-      - name: Run Vet
-        run: go vet ./...
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: ./...
       - name: Archive Dist
         uses: actions/upload-artifact@v2
         with:
