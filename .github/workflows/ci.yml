@@ -52,13 +52,6 @@ jobs:
     name: Build
     needs: web
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        os: [ "linux", "darwin", "windows" ]
-        arch: [ "amd64" ]
-    env:
-      GOOS: ${{ matrix.os }}
-      GOARCH: ${{ matrix.arch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
