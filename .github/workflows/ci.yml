@@ -91,6 +91,37 @@ jobs:
           path: ${{ env.DIST }}
           retention-days: 1
 
+  analysis:
+    name: Static Code Analysis
+    needs: build
+    runs-on: ubuntu-20.04
+    env:
+      GO111MODULE: on
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Download Web Dist
+        uses: actions/download-artifact@v2
+        with:
+          name: web-dist
+      - name: Untar Dist
+        run: |
+          rm -rf ${{ env.WEB_DIR }}
+          tar -xvf dist.tar
+          rm dist.tar
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Run Vet
+        run: go vet ./...
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
+
   tests:
     name: Unit Tests
     needs: build
@@ -165,7 +196,7 @@ jobs:
     name: Release
     if: ${{ contains(github.ref, 'refs/tags/') }}
     needs:
-      - build
+      - analysis
       - tests
       - nightly
     runs-on: ubuntu-20.04
