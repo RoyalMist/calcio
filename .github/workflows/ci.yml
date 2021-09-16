@@ -112,9 +112,9 @@ jobs:
       - name: Run Vet
         run: go vet ./...
       - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: ./...
+        run: |
+          go get -u github.com/securego/gosec/v2/cmd/gosec
+          gosec ./...
 
   tests:
     name: Unit Tests
