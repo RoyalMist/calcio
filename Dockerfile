@@ -7,7 +7,6 @@ RUN apk update && \
     apk add --no-cache \
     ca-certificates && \
     update-ca-certificates
-WORKDIR /opt
 COPY --chown=nobody:nobody calcio .
 USER nobody:nobody
 EXPOSE 4000
