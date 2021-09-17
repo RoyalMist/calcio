@@ -194,8 +194,6 @@ jobs:
       - tests
       - nightly
     runs-on: ubuntu-20.04
-    env:
-      MIX_ENV: prod
     steps:
       - name: Tag
         id: tagName
@@ -243,6 +241,9 @@ jobs:
       GOOS: ${{ matrix.os }}
       GOARCH: ${{ matrix.arch }}
     steps:
+      - name: Tag
+        id: tagName
+        uses: olegtarasov/get-tag@v2.1
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -267,10 +268,10 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Build Api
-        run: go build -o ${{ env.DIST }}-${{ matrix.os }}-${{ matrix.arch }}
+        run: go build -o ${{ env.DIST }}-${{ matrix.os }}-${{ matrix.arch }}-${{ steps.tagName.outputs.tag }}
       - name: Archive Dist
         uses: actions/upload-artifact@v2
         with:
           name: distribution-${{ env.DIST }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: ${{ env.DIST }}-${{ matrix.os }}-${{ matrix.arch }}
+          path: ${{ env.DIST }}-${{ matrix.os }}-${{ matrix.arch }}-${{ steps.tagName.outputs.tag }}
           retention-days: 30
