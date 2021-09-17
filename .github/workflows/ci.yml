@@ -273,5 +273,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.DIST }}-${{ matrix.os }}-${{ matrix.arch }}
-          path: ${{ env.DIST }}
+          path: ${{ env.DIST }}*
           retention-days: 30
