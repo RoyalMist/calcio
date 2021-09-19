@@ -1,12 +1,15 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"io/fs"
 	"log"
 	"net/http"
 
 	"calcio/api/settings"
+	"calcio/ent"
+	_ "calcio/ent/runtime"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"go.uber.org/fx"
@@ -23,8 +26,9 @@ func main() {
 	).Run()
 }
 
-func run(logger *zap.SugaredLogger, app *fiber.App) {
+func run(logger *zap.SugaredLogger, app *fiber.App, client *ent.Client) {
 	logger.Info("Hello Audacia !")
+	client.User.Create().SetName("Hello").SetPassword("Pass").SaveX(context.Background())
 	web, err := fs.Sub(efs, "web/dist")
 	if err != nil {
 		log.Fatal(err)

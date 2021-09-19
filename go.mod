@@ -3,7 +3,9 @@ module calcio
 go 1.17
 
 require (
+	entgo.io/ent v0.9.1
 	github.com/gofiber/fiber/v2 v2.18.0
+	github.com/lib/pq v1.10.2
 	github.com/spf13/viper v1.8.1
 	go.uber.org/fx v1.14.2
 	go.uber.org/zap v1.17.0
@@ -12,6 +14,7 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/compress v1.13.4 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
