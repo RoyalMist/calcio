@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"calcio/api/services/auth"
 	gen "calcio/ent"
 	"calcio/ent/hook"
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const PasswordMinLength = 8
@@ -42,12 +42,12 @@ func (User) Hooks() []ent.Hook {
 						return nil, fmt.Errorf("password too short, minimum length of %d", PasswordMinLength)
 					}
 
-					hash, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+					hash, err := auth.HashPassword(password)
 					if err != nil {
 						return nil, fmt.Errorf("unable to hash password")
 					}
 
-					mutation.SetPassword(string(hash))
+					mutation.SetPassword(hash)
 					return mutator.Mutate(ctx, mutation)
 				}
 

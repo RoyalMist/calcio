@@ -10,7 +10,7 @@ require (
 	github.com/spf13/viper v1.8.1
 	go.uber.org/fx v1.14.2
 	go.uber.org/zap v1.17.0
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
+	golang.org/x/crypto v0.0.0-20210920023735-84f357641f63
 )
 
 require (
@@ -29,10 +29,11 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.29.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect
+	github.com/vk-rv/pvx v0.0.0-20210912195928-ac00bc32f6e7 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/dig v1.12.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015 // indirect
+	golang.org/x/sys v0.0.0-20210917161153-d61c044b1678 // indirect
 	golang.org/x/text v0.3.6 // indirect
 	gopkg.in/ini.v1 v1.62.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

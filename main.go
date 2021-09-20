@@ -1,14 +1,12 @@
 package main
 
 import (
-	"context"
 	"embed"
 	"io/fs"
 	"log"
 	"net/http"
 
 	"calcio/api/settings"
-	"calcio/ent"
 	_ "calcio/ent/runtime"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
@@ -25,8 +23,7 @@ func main() {
 	).Run()
 }
 
-func run(app *fiber.App, client *ent.Client) {
-	client.User.Create().SetName("Hello").SetPassword("Password").SaveX(context.Background())
+func run(app *fiber.App) {
 	web, err := fs.Sub(efs, "web/dist")
 	if err != nil {
 		log.Fatal(err)

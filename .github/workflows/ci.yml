@@ -114,7 +114,7 @@ jobs:
       - name: Run Gosec Security Scanner
         run: |
           go get -u github.com/securego/gosec/v2/cmd/gosec
-          gosec ./...
+          gosec -exclude-generated ./...
 
   tests:
     name: Unit Tests
