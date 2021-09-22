@@ -1,7 +1,10 @@
 package config
 
 import (
+	"crypto/ed25519"
+
 	"github.com/spf13/viper"
+	"github.com/vk-rv/pvx"
 	"go.uber.org/fx"
 )
 
@@ -12,9 +15,19 @@ const (
 )
 
 type Config struct {
-	apiHost  string
-	dbDriver string
-	dbUrl    string
+	apiHost   string
+	dbDriver  string
+	dbUrl     string
+	publicKey *pvx.AsymPublicKey
+	secretKey *pvx.AsymSecretKey
+}
+
+func (c Config) PublicKey() *pvx.AsymPublicKey {
+	return c.publicKey
+}
+
+func (c Config) SecretKey() *pvx.AsymSecretKey {
+	return c.secretKey
 }
 
 func (c Config) DbUrl() string {
@@ -39,9 +52,15 @@ func New() *Config {
 	viper.SetDefault(DbUrl, "host=localhost port=5432 user=postgres dbname=calcio password=postgres sslmode=disable")
 	viper.AutomaticEnv()
 
+	publicKey, privateKey, _ := ed25519.GenerateKey(nil)
+	sk := pvx.NewAsymmetricSecretKey(privateKey, pvx.Version4)
+	pk := pvx.NewAsymmetricPublicKey(publicKey, pvx.Version4)
+
 	return &Config{
-		apiHost:  viper.GetString(ApiHost),
-		dbDriver: viper.GetString(DbDriver),
-		dbUrl:    viper.GetString(DbUrl),
+		apiHost:   viper.GetString(ApiHost),
+		dbDriver:  viper.GetString(DbDriver),
+		dbUrl:     viper.GetString(DbUrl),
+		publicKey: pk,
+		secretKey: sk,
 	}
 }
