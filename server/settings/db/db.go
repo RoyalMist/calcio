@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"calcio/api/settings/config"
 	"calcio/ent"
 	_ "calcio/ent/runtime"
+	"calcio/server/settings/config"
 	_ "github.com/lib/pq"
 	"go.uber.org/fx"
 	"go.uber.org/zap"

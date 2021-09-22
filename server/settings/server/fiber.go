@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"calcio/api/settings/config"
+	"calcio/server/settings/config"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"

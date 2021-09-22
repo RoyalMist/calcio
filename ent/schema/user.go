@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"calcio/api/services/auth"
 	gen "calcio/ent"
 	"calcio/ent/hook"
+	"calcio/server/middlewares"
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -42,7 +42,7 @@ func (User) Hooks() []ent.Hook {
 						return nil, fmt.Errorf("password too short, minimum length of %d", PasswordMinLength)
 					}
 
-					hash, err := auth.HashPassword(password)
+					hash, err := middlewares.HashPassword(password)
 					if err != nil {
 						return nil, fmt.Errorf("unable to hash password")
 					}

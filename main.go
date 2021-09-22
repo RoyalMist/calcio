@@ -6,8 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	"calcio/api/settings"
 	_ "calcio/ent/runtime"
+	"calcio/server/api"
+	"calcio/server/settings"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"go.uber.org/fx"
@@ -18,7 +19,10 @@ var efs embed.FS
 
 func main() {
 	fx.New(
-		fx.Options(settings.Module),
+		fx.Options(
+			settings.Module,
+			api.Module,
+		),
 		fx.Invoke(run),
 	).Run()
 }

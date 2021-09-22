@@ -1,10 +1,10 @@
 package settings
 
 import (
-	"calcio/api/settings/config"
-	"calcio/api/settings/db"
-	"calcio/api/settings/log"
-	"calcio/api/settings/server"
+	"calcio/server/settings/config"
+	"calcio/server/settings/db"
+	"calcio/server/settings/log"
+	"calcio/server/settings/server"
 	"go.uber.org/fx"
 )
 
