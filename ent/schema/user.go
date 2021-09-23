@@ -62,7 +62,6 @@ func (User) Hooks() []ent.Hook {
 func (User) Policy() ent.Policy {
 	return privacy.Policy{
 		Query: privacy.QueryPolicy{
-			security.DenyIfNotLoggedIn(),
 			privacy.AlwaysAllowRule(),
 		},
 		Mutation: privacy.MutationPolicy{

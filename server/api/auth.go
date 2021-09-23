@@ -37,11 +37,11 @@ func (a Auth) Start(base string, middlewares ...fiber.Handler) {
 		}
 	}
 
-	router.Get("/login", a.login)
+	router.Post("/login", a.login)
 }
 
 type login struct {
-	UserName string `json:"user_name"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
@@ -51,7 +51,7 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	u, err := a.client.User.Query().Where(user.Name(l.UserName)).First(ctx.UserContext())
+	u, err := a.client.User.Query().Where(user.Name(l.Name)).First(ctx.UserContext())
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
