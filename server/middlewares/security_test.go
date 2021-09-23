@@ -9,6 +9,7 @@ import (
 )
 
 func TestHashPassword(t *testing.T) {
+	t.Parallel()
 	goodPassword := "myP@ssw0rD"
 	type args struct {
 		password string
@@ -37,6 +38,7 @@ func TestHashPassword(t *testing.T) {
 }
 
 func TestCheckPassword(t *testing.T) {
+	t.Parallel()
 	goodPassword := "myP@ssw0rD"
 	goodPasswordHash, _ := bcrypt.GenerateFromPassword([]byte(goodPassword), HashCost)
 
@@ -64,6 +66,7 @@ func TestCheckPassword(t *testing.T) {
 }
 
 func TestSignVerifyToken(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		claims   Claims
 		validity time.Duration
