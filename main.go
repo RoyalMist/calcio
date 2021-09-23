@@ -33,19 +33,8 @@ func run(app *fiber.App) {
 		log.Fatal(err)
 	}
 
-	app.Get("/api/hello", sayHello)
-
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.FS(web),
 		NotFoundFile: "index.html",
 	}))
-}
-
-type hello struct {
-	Message string `json:"message"`
-}
-
-func sayHello(c *fiber.Ctx) error {
-	h := hello{Message: "Hello World"}
-	return c.JSON(h)
 }

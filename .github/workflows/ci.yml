@@ -70,7 +70,8 @@ jobs:
           rm -rf ${{ env.WEB_DIR }}
           tar -xvf dist.tar
           rm dist.tar
-      - uses: actions/cache@v2
+      - name: Retrieve Cached Dependencies
+        uses: actions/cache@v2
         with:
           path: |
             ~/go/pkg/mod
@@ -109,6 +110,13 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GO_VERSION }}
+      - name: Retrieve Cached Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Run Vet
         run: go vet ./...
       - name: Run Gosec Security Scanner
@@ -150,6 +158,13 @@ jobs:
         uses: actions/setup-go@v2
         with:
           go-version: ${{ env.GO_VERSION }}
+      - name: Retrieve Cached Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Test
         run: go test -v ./...
 
@@ -261,7 +276,8 @@ jobs:
           rm -rf ${{ env.WEB_DIR }}
           tar -xvf dist.tar
           rm dist.tar
-      - uses: actions/cache@v2
+      - name: Retrieve Cached Dependencies
+        uses: actions/cache@v2
         with:
           path: |
             ~/go/pkg/mod
