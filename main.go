@@ -46,6 +46,6 @@ type hello struct {
 }
 
 func sayHello(c *fiber.Ctx) error {
-	h := hello{Message: "Hello Audacia"}
+	h := hello{Message: "Hello World"}
 	return c.JSON(h)
 }

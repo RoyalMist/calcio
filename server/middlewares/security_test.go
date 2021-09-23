@@ -65,8 +65,7 @@ func TestCheckPassword(t *testing.T) {
 
 func TestSignVerifyToken(t *testing.T) {
 	type args struct {
-		userId   string
-		claims   map[string]string
+		claims   Claims
 		validity time.Duration
 	}
 
@@ -78,21 +77,11 @@ func TestSignVerifyToken(t *testing.T) {
 		wantVerifyErr bool
 	}{
 		{
-			name: "a valid token should be issued and validated with no claims",
-			args: args{
-				userId:   uuid.New().String(),
-				claims:   make(map[string]string, 0),
-				validity: 20 * time.Minute,
-			},
-			wait:          0,
-			wantSignErr:   false,
-			wantVerifyErr: false,
-		},
-		{
 			name: "a valid token should be issued and validated with one claim",
 			args: args{
-				userId:   uuid.New().String(),
-				claims:   map[string]string{"key": "value"},
+				claims: Claims{
+					UserId: uuid.New().String(),
+				},
 				validity: 20 * time.Minute,
 			},
 			wait:          0,
@@ -102,8 +91,9 @@ func TestSignVerifyToken(t *testing.T) {
 		{
 			name: "a valid token should be issued and validated with multiple claims",
 			args: args{
-				userId:   uuid.New().String(),
-				claims:   map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"},
+				claims: Claims{
+					UserId: uuid.New().String(),
+				},
 				validity: 20 * time.Minute,
 			},
 			wait:          0,
@@ -113,18 +103,39 @@ func TestSignVerifyToken(t *testing.T) {
 		{
 			name: "an expired token should not be validated",
 			args: args{
-				userId:   uuid.New().String(),
-				claims:   map[string]string{"key1": "value1", "key2": "value2", "key3": "value3"},
+				claims: Claims{
+					UserId: uuid.New().String(),
+				},
 				validity: 20 * time.Millisecond,
 			},
 			wait:          25 * time.Millisecond,
 			wantSignErr:   false,
 			wantVerifyErr: true,
 		},
+		{
+			name: "a valid token should be issued and not validated with invalid userId",
+			args: args{
+				claims:   Claims{UserId: ""},
+				validity: 20 * time.Minute,
+			},
+			wait:          0,
+			wantSignErr:   false,
+			wantVerifyErr: true,
+		},
+		{
+			name: "a valid token should be issued and not validated with absent userId",
+			args: args{
+				claims:   Claims{},
+				validity: 20 * time.Minute,
+			},
+			wait:          0,
+			wantSignErr:   false,
+			wantVerifyErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, signErr := SignToken(tt.args.userId, tt.args.claims, tt.args.validity)
+			got, signErr := SignToken(tt.args.claims, tt.args.validity)
 			if (signErr != nil) != tt.wantSignErr {
 				t.Errorf("SignToken() error = %v, wantSignErr %v", signErr, tt.wantSignErr)
 				return
@@ -142,15 +153,8 @@ func TestSignVerifyToken(t *testing.T) {
 			}
 
 			if verifyErr == nil {
-				if verifiedToken.Subject != tt.args.userId {
-					t.Errorf("VerifyToken() should retrive the provided subject %s, but found %s", tt.args.userId, verifiedToken.Subject)
-				}
-
-				for k, v := range tt.args.claims {
-					gotValue := verifiedToken.Get(k)
-					if v != gotValue {
-						t.Errorf("VerifyToken() should give the value %s for key %s, but got %s", v, k, gotValue)
-					}
+				if verifiedToken.UserId != tt.args.claims.UserId {
+					t.Errorf("VerifyToken() got userId %s, want %s", verifiedToken.UserId, tt.args.claims.UserId)
 				}
 			}
 		})
