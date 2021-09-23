@@ -1,24 +1,31 @@
 package api
 
 import (
+	"time"
+
+	"calcio/ent"
+	"calcio/ent/user"
+	"calcio/server/security"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 type Auth struct {
-	app *fiber.App
-	log *zap.SugaredLogger
+	app    *fiber.App
+	log    *zap.SugaredLogger
+	client *ent.Client
 }
 
 // AuthModule makes the injectable available for FX.
 var AuthModule = fx.Provide(NewAuth)
 
 // NewAuth creates a new injectable.
-func NewAuth(app *fiber.App, logger *zap.SugaredLogger) *Auth {
+func NewAuth(app *fiber.App, logger *zap.SugaredLogger, client *ent.Client) *Auth {
 	return &Auth{
-		app: app,
-		log: logger,
+		app:    app,
+		log:    logger,
+		client: client,
 	}
 }
 
@@ -30,9 +37,36 @@ func (a Auth) Start(base string, middlewares ...fiber.Handler) {
 		}
 	}
 
-	router.Get("/login", login)
+	router.Get("/login", a.login)
 }
 
-func login(ctx *fiber.Ctx) error {
-	return ctx.SendString("Hello")
+type login struct {
+	UserName string `json:"user_name"`
+	Password string `json:"password"`
+}
+
+func (a Auth) login(ctx *fiber.Ctx) error {
+	l := new(login)
+	if err := ctx.BodyParser(l); err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	u, err := a.client.User.Query().Where(user.Name(l.UserName)).First(ctx.UserContext())
+	if err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	if !security.CheckPassword(l.Password, u.Password) {
+		return fiber.ErrBadRequest
+	}
+
+	token, err := security.SignToken(security.Claims{
+		UserId:  u.ID.String(),
+		IsAdmin: u.Admin,
+	}, 20*time.Minute)
+	if err != nil {
+		return fiber.ErrInternalServerError
+	}
+
+	return ctx.SendString(token)
 }
