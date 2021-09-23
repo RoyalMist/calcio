@@ -21,17 +21,19 @@ func main() {
 	fx.New(
 		fx.Options(
 			settings.Module,
-			api.Module,
+			api.AuthModule,
 		),
 		fx.Invoke(run),
 	).Run()
 }
 
-func run(app *fiber.App) {
+func run(app *fiber.App, auth *api.Auth) {
 	web, err := fs.Sub(efs, "web/dist")
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	auth.Start("/auth")
 
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.FS(web),

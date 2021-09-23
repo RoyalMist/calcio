@@ -3,9 +3,12 @@ package middlewares
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
 	"github.com/vk-rv/pvx"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/ed25519"
@@ -67,8 +70,27 @@ func SignToken(claims Claims, validity time.Duration) (string, error) {
 	return pv4.Sign(secretKey, claims)
 }
 
-func VerifyToken(token string) (Claims, error) {
+func verifyToken(token string) (Claims, error) {
 	var claims Claims
 	err := pv4.Verify(token, publicKey).ScanClaims(&claims)
 	return claims, err
+}
+
+func PasetoMiddleware(ctx *fiber.Ctx) error {
+	authHeader := ctx.GetRespHeader(fiber.HeaderAuthorization)
+	if !strings.Contains(authHeader, "Bearer ") {
+		return fmt.Errorf("missing %s header or Bearer", fiber.HeaderAuthorization)
+	}
+
+	token := strings.Split(authHeader, " ")[1]
+	claims, err := verifyToken(token)
+	if err != nil {
+		return errors.Wrap(err, "invalid token")
+	}
+
+	fmt.Println(claims.UserId)
+
+	// viewer.NewContext(ctx, viewer.UserViewer{Role: viewer.Admin})
+	// ctx.SetUserContext()
+	return ctx.Next()
 }

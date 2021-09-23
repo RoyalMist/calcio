@@ -149,15 +149,15 @@ func TestSignVerifyToken(t *testing.T) {
 			}
 
 			time.Sleep(tt.wait)
-			verifiedToken, verifyErr := VerifyToken(got)
+			verifiedToken, verifyErr := verifyToken(got)
 			if (verifyErr != nil) != tt.wantVerifyErr {
-				t.Errorf("VerifyToken() error = %v, wantVerifyErr %v", verifyErr, tt.wantVerifyErr)
+				t.Errorf("verifyToken() error = %v, wantVerifyErr %v", verifyErr, tt.wantVerifyErr)
 				return
 			}
 
 			if verifyErr == nil {
 				if verifiedToken.UserId != tt.args.claims.UserId {
-					t.Errorf("VerifyToken() got userId %s, want %s", verifiedToken.UserId, tt.args.claims.UserId)
+					t.Errorf("verifyToken() got userId %s, want %s", verifiedToken.UserId, tt.args.claims.UserId)
 				}
 			}
 		})
