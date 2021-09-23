@@ -9,8 +9,8 @@ import (
 
 type Claims struct {
 	pvx.RegisteredClaims
-	UserId  string
-	IsAdmin bool
+	UserId  string `json:"user_id"`
+	IsAdmin bool   `json:"is_admin"`
 }
 
 func (c Claims) Valid() error {

@@ -1,6 +1,7 @@
 package security
 
 import (
+	ed255192 "crypto/ed25519"
 	"fmt"
 	"log"
 	"strings"
@@ -16,19 +17,17 @@ import (
 const HashCost = 15
 
 var (
-	pv4       = pvx.NewPV4Public()
-	publicKey *pvx.AsymPublicKey
-	secretKey *pvx.AsymSecretKey
+	pvX       = pvx.NewPV2Public()
+	publicKey ed255192.PublicKey
+	secretKey ed25519.PrivateKey
 )
 
 func init() {
-	pk, sk, err := ed25519.GenerateKey(nil)
+	var err error
+	publicKey, secretKey, err = ed25519.GenerateKey(nil)
 	if err != nil {
 		log.Fatal("impossible to create a valid ed255519 keys pair")
 	}
-
-	secretKey = pvx.NewAsymmetricSecretKey(sk, pvx.Version4)
-	publicKey = pvx.NewAsymmetricPublicKey(pk, pvx.Version4)
 }
 
 func HashPassword(password string) (string, error) {
@@ -49,12 +48,12 @@ func SignToken(claims Claims, validity time.Duration) (string, error) {
 	claims.Issuer = "calcio"
 	claims.KeyID = uuid.New().String()
 	claims.Expiration = &expiration
-	return pv4.Sign(secretKey, claims)
+	return pvX.Sign(secretKey, claims, nil)
 }
 
 func verifyToken(token string) (Claims, error) {
 	var claims Claims
-	err := pv4.Verify(token, publicKey).ScanClaims(&claims)
+	err := pvX.Verify(token, publicKey).ScanClaims(&claims)
 	return claims, err
 }
 

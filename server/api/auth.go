@@ -38,6 +38,7 @@ func (a Auth) Start(base string, middlewares ...fiber.Handler) {
 	}
 
 	router.Get("/login", a.login)
+	router.Get("/dummy", a.dummy)
 }
 
 type login struct {
@@ -63,6 +64,18 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 	token, err := security.SignToken(security.Claims{
 		UserId:  u.ID.String(),
 		IsAdmin: u.Admin,
+	}, 20*time.Minute)
+	if err != nil {
+		return fiber.ErrInternalServerError
+	}
+
+	return ctx.SendString(token)
+}
+
+func (a Auth) dummy(ctx *fiber.Ctx) error {
+	token, err := security.SignToken(security.Claims{
+		UserId:  "user-uuid",
+		IsAdmin: false,
 	}, 20*time.Minute)
 	if err != nil {
 		return fiber.ErrInternalServerError
