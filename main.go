@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"time"
 
 	"calcio/ent"
 	_ "calcio/ent/runtime"
@@ -41,7 +42,7 @@ func run(app *fiber.App, auth *api.Auth, team *api.Team) {
 		log.Fatal(err)
 	}
 
-	auth.Start("/auth")
+	auth.Start("/auth", security.RateLimit(5, 2*time.Minute))
 	team.Start("/team", security.IsAuthenticated)
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.FS(web),
