@@ -1,4 +1,4 @@
-package middlewares
+package security
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
-	"github.com/pkg/errors"
 	"github.com/vk-rv/pvx"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/crypto/ed25519"
@@ -30,23 +29,6 @@ func init() {
 
 	secretKey = pvx.NewAsymmetricSecretKey(sk, pvx.Version4)
 	publicKey = pvx.NewAsymmetricPublicKey(pk, pvx.Version4)
-}
-
-type Claims struct {
-	pvx.RegisteredClaims
-	UserId string
-}
-
-func (c Claims) Valid() error {
-	if err := c.RegisteredClaims.Valid(); err != nil {
-		return err
-	}
-
-	if len(c.UserId) < 1 {
-		return fmt.Errorf("invalid userId %s", c.UserId)
-	}
-
-	return nil
 }
 
 func HashPassword(password string) (string, error) {
@@ -76,21 +58,18 @@ func verifyToken(token string) (Claims, error) {
 	return claims, err
 }
 
-func PasetoMiddleware(ctx *fiber.Ctx) error {
-	authHeader := ctx.GetRespHeader(fiber.HeaderAuthorization)
+func IsAuthenticated(ctx *fiber.Ctx) error {
+	authHeader := ctx.Get(fiber.HeaderAuthorization)
 	if !strings.Contains(authHeader, "Bearer ") {
-		return fmt.Errorf("missing %s header or Bearer", fiber.HeaderAuthorization)
+		return fiber.ErrBadRequest
 	}
 
 	token := strings.Split(authHeader, " ")[1]
 	claims, err := verifyToken(token)
 	if err != nil {
-		return errors.Wrap(err, "invalid token")
+		return fiber.ErrUnauthorized
 	}
 
-	fmt.Println(claims.UserId)
-
-	// viewer.NewContext(ctx, viewer.UserViewer{Role: viewer.Admin})
-	// ctx.SetUserContext()
+	ctx.SetUserContext(newContext(ctx.UserContext(), claims))
 	return ctx.Next()
 }

@@ -6,7 +6,8 @@ import (
 
 	gen "calcio/ent"
 	"calcio/ent/hook"
-	"calcio/server/middlewares"
+	"calcio/ent/privacy"
+	"calcio/server/security"
 	"entgo.io/ent"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -25,6 +26,7 @@ func (User) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New),
 		field.String("name").NotEmpty().Unique().Immutable(),
 		field.String("password").NotEmpty().Sensitive(),
+		field.Bool("admin").Default(false),
 	}
 }
 
@@ -42,7 +44,7 @@ func (User) Hooks() []ent.Hook {
 						return nil, fmt.Errorf("password too short, minimum length of %d", PasswordMinLength)
 					}
 
-					hash, err := middlewares.HashPassword(password)
+					hash, err := security.HashPassword(password)
 					if err != nil {
 						return nil, fmt.Errorf("unable to hash password")
 					}
@@ -54,5 +56,19 @@ func (User) Hooks() []ent.Hook {
 				return nil, fmt.Errorf("password was not set")
 			})
 		}, ent.OpCreate|ent.OpUpdate),
+	}
+}
+
+func (User) Policy() ent.Policy {
+	return privacy.Policy{
+		Query: privacy.QueryPolicy{
+			security.DenyIfNotLoggedIn(),
+			privacy.AlwaysAllowRule(),
+		},
+		Mutation: privacy.MutationPolicy{
+			security.DenyIfNotLoggedIn(),
+			security.AllowIfAdmin(),
+			privacy.AlwaysDenyRule(),
+		},
 	}
 }

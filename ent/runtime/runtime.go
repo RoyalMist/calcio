@@ -5,16 +5,30 @@ package runtime
 import (
 	"calcio/ent/schema"
 	"calcio/ent/user"
+	"context"
 
 	"github.com/google/uuid"
+
+	"entgo.io/ent"
+	"entgo.io/ent/privacy"
 )
 
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	user.Policy = privacy.NewPolicies(schema.User{})
+	user.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := user.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
 	userHooks := schema.User{}.Hooks()
-	user.Hooks[0] = userHooks[0]
+
+	user.Hooks[1] = userHooks[0]
 	userFields := schema.User{}.Fields()
 	_ = userFields
 	// userDescName is the schema descriptor for name field.
@@ -25,6 +39,10 @@ func init() {
 	userDescPassword := userFields[2].Descriptor()
 	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
 	user.PasswordValidator = userDescPassword.Validators[0].(func(string) error)
+	// userDescAdmin is the schema descriptor for admin field.
+	userDescAdmin := userFields[3].Descriptor()
+	// user.DefaultAdmin holds the default value on creation for the admin field.
+	user.DefaultAdmin = userDescAdmin.Default.(bool)
 	// userDescID is the schema descriptor for id field.
 	userDescID := userFields[0].Descriptor()
 	// user.DefaultID holds the default value on creation for the id field.

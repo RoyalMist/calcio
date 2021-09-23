@@ -32,6 +32,20 @@ func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
 	return uu
 }
 
+// SetAdmin sets the "admin" field.
+func (uu *UserUpdate) SetAdmin(b bool) *UserUpdate {
+	uu.mutation.SetAdmin(b)
+	return uu
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableAdmin(b *bool) *UserUpdate {
+	if b != nil {
+		uu.SetAdmin(*b)
+	}
+	return uu
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
@@ -132,6 +146,13 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldPassword,
 		})
 	}
+	if value, ok := uu.mutation.Admin(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldAdmin,
+		})
+	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
@@ -154,6 +175,20 @@ type UserUpdateOne struct {
 // SetPassword sets the "password" field.
 func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
 	uuo.mutation.SetPassword(s)
+	return uuo
+}
+
+// SetAdmin sets the "admin" field.
+func (uuo *UserUpdateOne) SetAdmin(b bool) *UserUpdateOne {
+	uuo.mutation.SetAdmin(b)
+	return uuo
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableAdmin(b *bool) *UserUpdateOne {
+	if b != nil {
+		uuo.SetAdmin(*b)
+	}
 	return uuo
 }
 
@@ -279,6 +314,13 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldPassword,
+		})
+	}
+	if value, ok := uuo.mutation.Admin(); ok {
+		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldAdmin,
 		})
 	}
 	_node = &User{config: uuo.config}

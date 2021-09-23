@@ -32,6 +32,20 @@ func (uc *UserCreate) SetPassword(s string) *UserCreate {
 	return uc
 }
 
+// SetAdmin sets the "admin" field.
+func (uc *UserCreate) SetAdmin(b bool) *UserCreate {
+	uc.mutation.SetAdmin(b)
+	return uc
+}
+
+// SetNillableAdmin sets the "admin" field if the given value is not nil.
+func (uc *UserCreate) SetNillableAdmin(b *bool) *UserCreate {
+	if b != nil {
+		uc.SetAdmin(*b)
+	}
+	return uc
+}
+
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(u uuid.UUID) *UserCreate {
 	uc.mutation.SetID(u)
@@ -111,6 +125,10 @@ func (uc *UserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *UserCreate) defaults() error {
+	if _, ok := uc.mutation.Admin(); !ok {
+		v := user.DefaultAdmin
+		uc.mutation.SetAdmin(v)
+	}
 	if _, ok := uc.mutation.ID(); !ok {
 		if user.DefaultID == nil {
 			return fmt.Errorf("ent: uninitialized user.DefaultID (forgotten import ent/runtime?)")
@@ -138,6 +156,9 @@ func (uc *UserCreate) check() error {
 		if err := user.PasswordValidator(v); err != nil {
 			return &ValidationError{Name: "password", err: fmt.Errorf(`ent: validator failed for field "password": %w`, err)}
 		}
+	}
+	if _, ok := uc.mutation.Admin(); !ok {
+		return &ValidationError{Name: "admin", err: errors.New(`ent: missing required field "admin"`)}
 	}
 	return nil
 }
@@ -186,6 +207,14 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldPassword,
 		})
 		_node.Password = value
+	}
+	if value, ok := uc.mutation.Admin(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeBool,
+			Value:  value,
+			Column: user.FieldAdmin,
+		})
+		_node.Admin = value
 	}
 	return _node, _spec
 }
