@@ -5,10 +5,7 @@ export default defineConfig({
     plugins: [reactRefresh()],
     server: {
         proxy: {
-            '/api': {
-                target: 'http://localhost:4000',
-                changeOrigin: true,
-            },
+            '/api': 'http://localhost:4000',
         }
     }
 })
