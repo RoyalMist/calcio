@@ -65,25 +65,25 @@ var doc = `{
                     "400": {
                         "description": "When the token is absent or malformed",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     "401": {
                         "description": "When the token is invalid",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     "429": {
                         "description": "When the rate limit is reached",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     "500": {
                         "description": "When something went wrong",
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     }
                 }
@@ -118,7 +118,7 @@ type swaggerInfo struct {
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
 	Host:        "",
-	BasePath:    "/",
+	BasePath:    "/api",
 	Schemes:     []string{"http"},
 	Title:       "Calcio API",
 	Description: "Calcio, Table Football App.",

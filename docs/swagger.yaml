@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api
 definitions:
   api.login:
     properties:
@@ -42,19 +42,19 @@ paths:
         "400":
           description: When the token is absent or malformed
           schema:
-            type: integer
+            type: string
         "401":
           description: When the token is invalid
           schema:
-            type: integer
+            type: string
         "429":
           description: When the rate limit is reached
           schema:
-            type: integer
+            type: string
         "500":
           description: When something went wrong
           schema:
-            type: integer
+            type: string
       summary: Permits a user to log in to Calcio if credentials are valid.
       tags:
         - authentication
