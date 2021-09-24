@@ -9,7 +9,6 @@ import landing from "../../../images/landing.webp";
 import logo from "../../../images/logo.webp";
 import {api_login, AuthenticationService} from "../../api";
 
-
 function Login() {
     const initialValues: api_login = {name: "", password: ""};
     const authStore = useAuthStore();
