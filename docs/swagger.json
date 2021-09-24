@@ -1,0 +1,94 @@
+{
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Calcio, Table Football App.",
+    "title": "Calcio API",
+    "contact": {
+      "name": "Royal Mist",
+      "url": "https://github.com/RoyalMist",
+      "email": "royalmist@calcio.ch"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    },
+    "version": "1.0"
+  },
+  "basePath": "/",
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "description": "Log in and retrieve the PASETO token signed. This method is rate limited.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "authentication"
+        ],
+        "summary": "Permits a user to log in to Calcio if credentials are valid.",
+        "parameters": [
+          {
+            "description": "Login json object",
+            "name": "login",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/api.login"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paseto Token",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "When the token is absent or malformed",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "401": {
+            "description": "When the token is invalid",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "429": {
+            "description": "When the rate limit is reached",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          "500": {
+            "description": "When something went wrong",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "api.login": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

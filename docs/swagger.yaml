@@ -1,0 +1,63 @@
+basePath: /
+definitions:
+  api.login:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+info:
+  contact:
+    email: royalmist@calcio.ch
+    name: Royal Mist
+    url: https://github.com/RoyalMist
+  description: Calcio, Table Football App.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Calcio API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+        - application/json
+      description: Log in and retrieve the PASETO token signed. This method is rate
+        limited.
+      parameters:
+        - description: Login json object
+          in: body
+          name: login
+          required: true
+          schema:
+            $ref: '#/definitions/api.login'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Paseto Token
+          schema:
+            type: string
+        "400":
+          description: When the token is absent or malformed
+          schema:
+            type: integer
+        "401":
+          description: When the token is invalid
+          schema:
+            type: integer
+        "429":
+          description: When the rate limit is reached
+          schema:
+            type: integer
+        "500":
+          description: When something went wrong
+          schema:
+            type: integer
+      summary: Permits a user to log in to Calcio if credentials are valid.
+      tags:
+        - authentication
+schemes:
+  - http
+swagger: "2.0"
