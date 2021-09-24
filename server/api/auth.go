@@ -45,6 +45,18 @@ type login struct {
 	Password string `json:"password"`
 }
 
+// @Summary Permits a user to log in to Calcio if credentials are valid.
+// @Description Log in and retrieve the PASETO token signed. This method is rate limited.
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Paseto Token"
+// @Failure 400 {integer} integer "When the token is absent or malformed"
+// @Failure 401 {integer} integer "When the token is invalid"
+// @Failure 429 {integer} integer "When the rate limit is reached"
+// @Failure 500 {integer} integer "When something went wrong"
+// @Param login body login true "Login json object"
+// @Router /auth/login [post]
 func (a Auth) login(ctx *fiber.Ctx) error {
 	l := new(login)
 	if err := ctx.BodyParser(l); err != nil {

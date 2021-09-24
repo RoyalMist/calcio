@@ -15,7 +15,7 @@ func RateLimit(limit int, period time.Duration) fiber.Handler {
 			return c.Get("x-forwarded-for")
 		},
 		LimitReached: func(c *fiber.Ctx) error {
-			return c.SendStatus(fiber.StatusBadRequest)
+			return c.SendStatus(fiber.StatusTooManyRequests)
 		},
 	})
 }
