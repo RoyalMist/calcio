@@ -4,27 +4,21 @@ import useAuthStore from "../../hooks/useAuthStore";
 
 interface LoggedInRouteProps {
     children: React.ReactNode;
-    withRoles?: string[];
+    mustBeAdmin?: boolean;
     path?: string;
     exact?: boolean;
 }
 
-function LoggedInRoute({children, exact, path, withRoles}: LoggedInRouteProps) {
+function LoggedInRoute({children, exact, path, mustBeAdmin = false}: LoggedInRouteProps) {
     const auth = useAuthStore();
-    const authorized = withRoles !== undefined ? withRoles.some(r => auth.hasRole(r)) : auth.isLoggedIn()
-
+    const authorized = mustBeAdmin ? auth.isAdmin() : auth.isLoggedIn();
     return (
         <Route
             exact={exact}
             path={path}
-            render={({location}) =>
+            render={() =>
                 authorized ? (children) : (
-                    <Redirect
-                        to={{
-                            pathname: "/auth/login",
-                            state: {from: location},
-                        }}
-                    />
+                    <Redirect to={{pathname: "/auth/login"}}/>
                 )
             }
         />

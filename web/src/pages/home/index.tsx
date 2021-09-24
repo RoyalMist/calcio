@@ -5,7 +5,7 @@ import {DASHBOARDS, PROFILE} from "../../routes";
 
 function Home() {
     const auth = useAuthStore();
-    if (auth.hasRole("admin")) {
+    if (auth.isAdmin()) {
         return <Redirect to={DASHBOARDS}/>;
     } else {
         return <Redirect to={PROFILE}/>;

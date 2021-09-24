@@ -18,7 +18,7 @@ function Login() {
     const signIn = useMutation(async (values: LoginFormValues) => {
         const {data} = await API.post("/auth/login", values)
         return data;
-    })
+    });
 
     useEffect(() => {
         if (!!signIn.data) {

@@ -33,14 +33,14 @@ function App() {
         {
             name: "Dashboard",
             to: DASHBOARDS,
-            restricted: auth.hasRole("admin"),
+            restricted: auth.isAdmin(),
             icon: ChartBarIcon,
             current: path.startsWith(DASHBOARDS),
         },
         {
             name: "Players",
             to: PLAYERS,
-            restricted: auth.hasRole("admin") || auth.hasRole("agency"),
+            restricted: auth.isAdmin(),
             icon: UsersIcon,
             current: path.startsWith(PLAYERS),
         },
@@ -248,10 +248,10 @@ function App() {
                                     <LoggedInRoute path={LOGOUT}>
                                         <Logout/>
                                     </LoggedInRoute>
-                                    <LoggedInRoute path={DASHBOARDS} withRoles={["admin"]}>
+                                    <LoggedInRoute path={DASHBOARDS} mustBeAdmin={true}>
                                         <Dashboards/>
                                     </LoggedInRoute>
-                                    <LoggedInRoute path={PLAYERS} withRoles={["admin"]}>
+                                    <LoggedInRoute path={PLAYERS} mustBeAdmin={true}>
                                         <Players/>
                                     </LoggedInRoute>
                                     <DefaultRedirect/>
