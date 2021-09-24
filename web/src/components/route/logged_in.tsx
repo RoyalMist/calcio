@@ -18,7 +18,7 @@ function LoggedInRoute({children, exact, path, mustBeAdmin = false}: LoggedInRou
             path={path}
             render={() =>
                 authorized ? (children) : (
-                    <Redirect to={{pathname: "/auth/login"}}/>
+                    <Redirect to={{pathname: "/login"}}/>
                 )
             }
         />

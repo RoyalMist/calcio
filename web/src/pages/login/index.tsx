@@ -6,6 +6,8 @@ import useAuthStore from "../../hooks/useAuthStore";
 import {useMutation} from "react-query";
 import {API} from "../../utils/api";
 import SimpleField from "../../components/simple-field";
+import landing from "../../../images/landing.webp";
+import logo from "../../../images/logo.webp";
 
 interface LoginFormValues {
     name: string;
@@ -32,7 +34,7 @@ function Login() {
             <div className="flex min-h-screen bg-white">
                 <div className="flex flex-col justify-center flex-1 px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
                     <div className="flex flex-col justify-center w-full max-w-sm mx-auto lg:w-96">
-                        <img src="/images/logo.webp" alt="Calcio"/>
+                        <img src={logo} alt="Calcio"/>
                         <div className="mt-8">
                             <Split>Login</Split>
                             <div className="mt-6">
@@ -70,7 +72,7 @@ function Login() {
                 <div className="relative flex-1 hidden w-0 lg:block">
                     <img
                         className="absolute inset-0 object-cover w-full h-full"
-                        src="/images/landing.webp"
+                        src={landing}
                         alt=""
                     />
                 </div>

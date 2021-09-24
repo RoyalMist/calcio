@@ -49,14 +49,15 @@ func setup(client *ent.Client) {
 }
 
 func run(app *fiber.App, auth *api.Auth, users *api.Users) {
+	auth.Start("/auth", security.RateLimit(5, 2*time.Minute))
+	users.Start("/users")
+	app.Get("/swagger/*", swagger.Handler)
+
 	web, err := fs.Sub(efs, "web/dist")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	auth.Start("/auth", security.RateLimit(5, 2*time.Minute))
-	users.Start("/users")
-	app.Get("/swagger/*", swagger.Handler)
 	app.Use(filesystem.New(filesystem.Config{
 		Root:         http.FS(web),
 		NotFoundFile: "index.html",

@@ -13,11 +13,12 @@ import Logout from "./logout";
 import Profile from "./profile";
 import useAuthStore from "../hooks/useAuthStore";
 import Players from "./users";
+import avatar from '../../images/avatar.webp';
 
 const user = {
     name: "Thibault Fouache",
     email: "thibault@Calcio.ch",
-    imageUrl: "/images/avatar.webp",
+    imageUrl: avatar,
 };
 
 function App() {
