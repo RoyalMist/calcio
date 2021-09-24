@@ -23,7 +23,7 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("id", uuid.UUID{}).Default(uuid.New),
+		field.UUID("id", uuid.UUID{}).Default(uuid.New).Immutable(),
 		field.String("name").NotEmpty().Unique().Immutable(),
 		field.String("password").NotEmpty().Sensitive(),
 		field.Bool("admin").Default(false),

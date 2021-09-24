@@ -163,6 +163,54 @@ func DenyMutationOperationRule(op ent.Op) MutationRule {
 	return OnMutationOperation(rule, op)
 }
 
+// The GameQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type GameQueryRuleFunc func(context.Context, *ent.GameQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f GameQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.GameQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.GameQuery", q)
+}
+
+// The GameMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type GameMutationRuleFunc func(context.Context, *ent.GameMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f GameMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.GameMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.GameMutation", m)
+}
+
+// The TeamQueryRuleFunc type is an adapter to allow the use of ordinary
+// functions as a query rule.
+type TeamQueryRuleFunc func(context.Context, *ent.TeamQuery) error
+
+// EvalQuery return f(ctx, q).
+func (f TeamQueryRuleFunc) EvalQuery(ctx context.Context, q ent.Query) error {
+	if q, ok := q.(*ent.TeamQuery); ok {
+		return f(ctx, q)
+	}
+	return Denyf("ent/privacy: unexpected query type %T, expect *ent.TeamQuery", q)
+}
+
+// The TeamMutationRuleFunc type is an adapter to allow the use of ordinary
+// functions as a mutation rule.
+type TeamMutationRuleFunc func(context.Context, *ent.TeamMutation) error
+
+// EvalMutation calls f(ctx, m).
+func (f TeamMutationRuleFunc) EvalMutation(ctx context.Context, m ent.Mutation) error {
+	if m, ok := m.(*ent.TeamMutation); ok {
+		return f(ctx, m)
+	}
+	return Denyf("ent/privacy: unexpected mutation type %T, expect *ent.TeamMutation", m)
+}
+
 // The UserQueryRuleFunc type is an adapter to allow the use of ordinary
 // functions as a query rule.
 type UserQueryRuleFunc func(context.Context, *ent.UserQuery) error

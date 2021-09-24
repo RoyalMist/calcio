@@ -31,7 +31,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/api/auth/login": {
             "post": {
                 "description": "Log in and retrieve the PASETO token signed. This method is rate limited.",
                 "consumes": [
@@ -118,7 +118,7 @@ type swaggerInfo struct {
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
 	Host:        "",
-	BasePath:    "/api",
+	BasePath:    "",
 	Schemes:     []string{"http"},
 	Title:       "Calcio API",
 	Description: "Calcio, Table Football App.",

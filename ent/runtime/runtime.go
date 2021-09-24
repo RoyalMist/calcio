@@ -4,6 +4,7 @@ package runtime
 
 import (
 	"calcio/ent/schema"
+	"calcio/ent/team"
 	"calcio/ent/user"
 	"context"
 
@@ -17,6 +18,16 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	teamFields := schema.Team{}.Fields()
+	_ = teamFields
+	// teamDescName is the schema descriptor for name field.
+	teamDescName := teamFields[1].Descriptor()
+	// team.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	team.NameValidator = teamDescName.Validators[0].(func(string) error)
+	// teamDescID is the schema descriptor for id field.
+	teamDescID := teamFields[0].Descriptor()
+	// team.DefaultID holds the default value on creation for the id field.
+	team.DefaultID = teamDescID.Default.(func() uuid.UUID)
 	user.Policy = privacy.NewPolicies(schema.User{})
 	user.Hooks[0] = func(next ent.Mutator) ent.Mutator {
 		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {

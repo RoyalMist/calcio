@@ -17,9 +17,8 @@
     },
     "version": "1.0"
   },
-  "basePath": "/api",
   "paths": {
-    "/auth/login": {
+    "/api/auth/login": {
       "post": {
         "description": "Log in and retrieve the PASETO token signed. This method is rate limited.",
         "consumes": [

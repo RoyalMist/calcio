@@ -56,7 +56,7 @@ type login struct {
 // @Failure 429 {string} string "When the rate limit is reached"
 // @Failure 500 {string} string "When something went wrong"
 // @Param login body login true "Login json object"
-// @Router /auth/login [post]
+// @Router /api/auth/login [post]
 func (a Auth) login(ctx *fiber.Ctx) error {
 	l := new(login)
 	if err := ctx.BodyParser(l); err != nil {

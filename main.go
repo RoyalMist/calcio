@@ -30,7 +30,6 @@ var efs embed.FS
 // @contact.email royalmist@calcio.ch
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
-// @BasePath /api
 // @schemes http
 func main() {
 	fx.New(
@@ -49,8 +48,8 @@ func setup(client *ent.Client) {
 }
 
 func run(app *fiber.App, auth *api.Auth, users *api.Users) {
-	auth.Start("/api/auth", security.RateLimit(3, 10*time.Minute))
-	users.Start("/api/users")
+	auth.Start("/api/auth", security.RateLimit(10, 5*time.Minute))
+	users.Start("/api/users", security.IsAuthenticated)
 	app.Get("/swagger/*", swagger.Handler)
 
 	web, err := fs.Sub(efs, "web/dist")

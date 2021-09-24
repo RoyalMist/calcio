@@ -3,6 +3,8 @@
 package ent
 
 import (
+	"calcio/ent/game"
+	"calcio/ent/team"
 	"calcio/ent/user"
 	"errors"
 	"fmt"
@@ -29,6 +31,8 @@ type OrderFunc func(*sql.Selector)
 // columnChecker returns a function indicates if the column exists in the given column.
 func columnChecker(table string) func(string) error {
 	checks := map[string]func(string) bool{
+		game.Table: game.ValidColumn,
+		team.Table: team.ValidColumn,
 		user.Table: user.ValidColumn,
 	}
 	check, ok := checks[table]

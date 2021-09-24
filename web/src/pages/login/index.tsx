@@ -4,22 +4,17 @@ import Spinner from "../../components/spinner";
 import Split from "../../components/split";
 import useAuthStore from "../../hooks/useAuthStore";
 import {useMutation} from "react-query";
-import {API} from "../../utils/api";
 import SimpleField from "../../components/simple-field";
 import landing from "../../../images/landing.webp";
 import logo from "../../../images/logo.webp";
+import {api_login, AuthenticationService} from "../../api";
 
-interface LoginFormValues {
-    name: string;
-    password: string;
-}
 
 function Login() {
-    const initialValues: LoginFormValues = {name: "", password: ""};
+    const initialValues: api_login = {name: "", password: ""};
     const authStore = useAuthStore();
-    const signIn = useMutation(async (values: LoginFormValues) => {
-        const {data} = await API.post("/auth/login", values)
-        return data;
+    const signIn = useMutation(async (values: api_login) => {
+        return await AuthenticationService.postAuthenticationService(values);
     });
 
     useEffect(() => {
