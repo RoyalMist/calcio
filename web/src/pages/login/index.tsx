@@ -2,25 +2,25 @@ import {Form, Formik} from "formik";
 import React, {useEffect} from "react";
 import Spinner from "../../components/spinner";
 import Split from "../../components/split";
-import useAuthStore from "../../hooks/useAuthStore";
 import {useMutation} from "react-query";
 import SimpleField from "../../components/simple-field";
 import landing from "../../../images/landing.webp";
 import logo from "../../../images/logo.webp";
 import {api_login, AuthenticationService} from "../../api";
+import {AuthActionKind, useAuth} from "../../stores/authentication";
 
 function Login() {
     const initialValues: api_login = {name: "", password: ""};
-    const authStore = useAuthStore();
+    const {authDispatch} = useAuth();
     const signIn = useMutation(async (values: api_login) => {
         return await AuthenticationService.postAuthenticationService(values);
     });
 
     useEffect(() => {
         if (!!signIn.data) {
-            authStore.setToken(signIn.data);
+            authDispatch({type: AuthActionKind.SET, token: signIn.data})
         }
-    }, [signIn.data, authStore]);
+    }, [signIn.data, authDispatch]);
 
     return (
         <>

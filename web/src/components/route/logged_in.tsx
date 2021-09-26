@@ -1,6 +1,6 @@
 import React from "react";
 import {Redirect, Route} from "react-router-dom";
-import useAuthStore from "../../hooks/useAuthStore";
+import {useAuth} from "../../stores/authentication";
 
 interface LoggedInRouteProps {
     children: React.ReactNode;
@@ -10,8 +10,8 @@ interface LoggedInRouteProps {
 }
 
 function LoggedInRoute({children, exact, path, mustBeAdmin = false}: LoggedInRouteProps) {
-    const auth = useAuthStore();
-    const authorized = mustBeAdmin ? auth.isAdmin() : auth.isLoggedIn();
+    const {authState} = useAuth();
+    const authorized = mustBeAdmin ? authState.paseto?.is_admin : !!authState.token;
     return (
         <Route
             exact={exact}

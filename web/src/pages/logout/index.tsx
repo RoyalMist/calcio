@@ -1,12 +1,12 @@
 import React, {useEffect} from "react";
-import useAuthStore from "../../hooks/useAuthStore";
+import {AuthActionKind, useAuth} from "../../stores/authentication";
 
 function Logout() {
-    const authStore = useAuthStore();
+    const {authDispatch} = useAuth();
 
     useEffect(() => {
-        authStore.clearStore();
-    }, [authStore]);
+        authDispatch({type: AuthActionKind.CLEAR, token: null});
+    }, [authDispatch]);
 
     return <></>;
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import {Redirect, Route} from "react-router-dom";
-import useAuthStore from "../../hooks/useAuthStore";
+import {useAuth} from "../../stores/authentication";
 
 interface LoggedOutRouteProps {
     children: React.ReactNode;
@@ -9,14 +9,14 @@ interface LoggedOutRouteProps {
 }
 
 function LoggedOutRoute({exact, path, children}: LoggedOutRouteProps) {
-    const auth = useAuthStore();
+    const {authState} = useAuth();
 
     return (
         <Route
             exact={exact}
             path={path}
             render={({location}) =>
-                !auth.isLoggedIn() ? (children) : (
+                !authState.token ? (children) : (
                     <Redirect
                         to={{
                             pathname: "/",

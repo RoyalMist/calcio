@@ -11,9 +11,10 @@ import Dashboards from "./dashboards";
 import Home from "./home";
 import Logout from "./logout";
 import Profile from "./profile";
-import useAuthStore from "../hooks/useAuthStore";
 import Players from "./users";
-import avatar from '../../images/avatar.webp';
+import avatar from "../../images/avatar.webp";
+import logo from "../../images/logo.webp";
+import {useAuth} from "../stores/authentication";
 
 const user = {
     name: "Thibault Fouache",
@@ -23,8 +24,7 @@ const user = {
 
 function App() {
     const path = useLocation().pathname;
-    const auth = useAuthStore();
-
+    const {authState} = useAuth();
     const ACCOUNT_NAVIGATION = [
         {name: "Your Profile", to: PROFILE},
         {name: "Sign out", to: LOGOUT},
@@ -34,14 +34,14 @@ function App() {
         {
             name: "Dashboard",
             to: DASHBOARDS,
-            restricted: auth.isAdmin(),
+            restricted: authState.paseto?.is_admin,
             icon: ChartBarIcon,
             current: path.startsWith(DASHBOARDS),
         },
         {
             name: "Players",
             to: PLAYERS,
-            restricted: auth.isAdmin(),
+            restricted: authState.paseto?.is_admin,
             icon: UsersIcon,
             current: path.startsWith(PLAYERS),
         },
@@ -67,7 +67,7 @@ function App() {
                                         <Link to={HOME}>
                                             <img
                                                 className="block w-auto h-8"
-                                                src="/images/logo.webp"
+                                                src={logo}
                                                 alt="Calcio"
                                             />
                                         </Link>

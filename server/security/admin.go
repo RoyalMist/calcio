@@ -12,6 +12,6 @@ func CreateAdmin(client *ent.Client) (err error) {
 		IsAdmin: true,
 	})
 
-	_, err = client.User.Create().SetAdmin(true).SetName("Admin").SetPassword("admin123").Save(ctx)
+	_, err = client.User.Create().SetAdmin(true).SetName("admin").SetPassword("admin123").Save(ctx)
 	return
 }

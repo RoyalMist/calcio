@@ -9,6 +9,7 @@ import Login from "./pages/login";
 import LoggedInRoute from "./components/route/logged_in";
 import {DefaultRedirect} from "./pages/404";
 import {toast, Toaster} from "react-hot-toast";
+import {AuthProvider} from "./stores/authentication";
 
 function Root() {
     const queryClient = new QueryClient({
@@ -24,19 +25,21 @@ function Root() {
 
     return (<>
             <Toaster/>
-            <QueryClientProvider client={queryClient}>
-                <Router>
-                    <Switch>
-                        <LoggedOutRoute path="/login">
-                            <Login/>
-                        </LoggedOutRoute>
-                        <LoggedInRoute path="/">
-                            <App/>
-                        </LoggedInRoute>
-                        <DefaultRedirect/>
-                    </Switch>
-                </Router>
-            </QueryClientProvider>
+            <AuthProvider>
+                <QueryClientProvider client={queryClient}>
+                    <Router>
+                        <Switch>
+                            <LoggedOutRoute path="/login">
+                                <Login/>
+                            </LoggedOutRoute>
+                            <LoggedInRoute path="/">
+                                <App/>
+                            </LoggedInRoute>
+                            <DefaultRedirect/>
+                        </Switch>
+                    </Router>
+                </QueryClientProvider>
+            </AuthProvider>
         </>
     );
 }
