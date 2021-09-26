@@ -9,7 +9,7 @@ enum AuthActionKind {
 
 interface AuthAction {
     type: AuthActionKind;
-    token: string | null;
+    token?: string;
 }
 
 interface Paseto {
@@ -28,12 +28,14 @@ interface AuthProps {
 }
 
 interface AuthContext {
-    authState: AuthState;
-    authDispatch: React.Dispatch<AuthAction>
+    token: string | null;
+    isLoggedIn: () => boolean;
+    isAdmin: () => boolean;
+    dispatcher: React.Dispatch<AuthAction>
 }
 
 const EMPTY: AuthState = {token: null, paseto: null}
-const AuthContext = React.createContext<AuthContext>({authState: EMPTY, authDispatch: () => null});
+const AuthContext = React.createContext<AuthContext>({token: null, isLoggedIn: () => false, isAdmin: () => false, dispatcher: () => EMPTY});
 const stateFromToken = (token: string | null): AuthState => {
     if (!token) {
         return EMPTY;
@@ -61,7 +63,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     const {type, token} = action;
     switch (type) {
         case AuthActionKind.SET: {
-            return stateFromToken(token);
+            return stateFromToken(token === undefined ? null : token);
         }
         case AuthActionKind.CLEAR: {
             localStorage.removeItem("token");
@@ -75,8 +77,10 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
 
 function AuthProvider({children}: AuthProps) {
     const storedToken = localStorage.getItem("token");
-    const [authState, authDispatch] = useReducer(authReducer, stateFromToken(storedToken));
-    const value = {authState, authDispatch};
+    const [state, dispatch] = useReducer(authReducer, stateFromToken(storedToken));
+    const isAdmin = () => !!stateFromToken(state.token).paseto?.is_admin;
+    const isLoggedIn = () => !!stateFromToken(state.token).paseto;
+    const value: AuthContext = {token: state.token, dispatcher: dispatch, isAdmin, isLoggedIn};
     return (
         <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
     );

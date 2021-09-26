@@ -4,8 +4,8 @@ import {DASHBOARDS, PROFILE} from "../../routes";
 import {useAuth} from "../../stores/authentication";
 
 function Home() {
-    const {authState} = useAuth();
-    if (authState.paseto?.user_id) {
+    const {isAdmin} = useAuth();
+    if (isAdmin()) {
         return <Redirect to={DASHBOARDS}/>;
     } else {
         return <Redirect to={PROFILE}/>;

@@ -11,16 +11,16 @@ import {AuthActionKind, useAuth} from "../../stores/authentication";
 
 function Login() {
     const initialValues: api_login = {name: "", password: ""};
-    const {authDispatch} = useAuth();
+    const {dispatcher} = useAuth();
     const signIn = useMutation(async (values: api_login) => {
         return await AuthenticationService.postAuthenticationService(values);
     });
 
     useEffect(() => {
         if (!!signIn.data) {
-            authDispatch({type: AuthActionKind.SET, token: signIn.data})
+            dispatcher({type: AuthActionKind.SET, token: signIn.data})
         }
-    }, [signIn.data, authDispatch]);
+    }, [signIn.data, dispatcher]);
 
     return (
         <>

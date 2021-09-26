@@ -10,19 +10,30 @@ interface LoggedInRouteProps {
 }
 
 function LoggedInRoute({children, exact, path, mustBeAdmin = false}: LoggedInRouteProps) {
-    const {authState} = useAuth();
-    const authorized = mustBeAdmin ? authState.paseto?.is_admin : !!authState.token;
-    return (
-        <Route
+    const {isAdmin, isLoggedIn} = useAuth();
+    if (mustBeAdmin && isLoggedIn()) {
+        return <Route
             exact={exact}
             path={path}
             render={() =>
-                authorized ? (children) : (
-                    <Redirect to={{pathname: "/login"}}/>
+                isAdmin() ? (children) : (
+                    <Redirect to={{pathname: "/"}}/>
                 )
             }
         />
-    );
+    } else {
+        return (
+            <Route
+                exact={exact}
+                path={path}
+                render={() =>
+                    isLoggedIn() ? (children) : (
+                        <Redirect to={{pathname: "/login"}}/>
+                    )
+                }
+            />
+        );
+    }
 }
 
 export default LoggedInRoute;

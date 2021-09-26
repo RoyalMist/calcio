@@ -9,14 +9,14 @@ interface LoggedOutRouteProps {
 }
 
 function LoggedOutRoute({exact, path, children}: LoggedOutRouteProps) {
-    const {authState} = useAuth();
+    const {isLoggedIn} = useAuth();
 
     return (
         <Route
             exact={exact}
             path={path}
             render={({location}) =>
-                !authState.token ? (children) : (
+                !isLoggedIn() ? (children) : (
                     <Redirect
                         to={{
                             pathname: "/",

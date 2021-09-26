@@ -24,7 +24,7 @@ const user = {
 
 function App() {
     const path = useLocation().pathname;
-    const {authState} = useAuth();
+    const {isAdmin} = useAuth();
     const ACCOUNT_NAVIGATION = [
         {name: "Your Profile", to: PROFILE},
         {name: "Sign out", to: LOGOUT},
@@ -34,14 +34,14 @@ function App() {
         {
             name: "Dashboard",
             to: DASHBOARDS,
-            restricted: authState.paseto?.is_admin,
+            restricted: isAdmin(),
             icon: ChartBarIcon,
             current: path.startsWith(DASHBOARDS),
         },
         {
             name: "Players",
             to: PLAYERS,
-            restricted: authState.paseto?.is_admin,
+            restricted: isAdmin(),
             icon: UsersIcon,
             current: path.startsWith(PLAYERS),
         },
@@ -156,7 +156,7 @@ function App() {
 
                         <Popover.Panel as="nav" className="lg:hidden">
                             <div className="max-w-3xl px-2 pt-2 pb-3 mx-auto space-y-1 sm:px-4">
-                                {MAIN_NAVIGATION.filter(n => n.restricted !== false).map((item) => (
+                                {MAIN_NAVIGATION.filter(n => n.restricted).map((item) => (
                                     <Link
                                         key={item.name}
                                         to={item.to}
@@ -211,7 +211,7 @@ function App() {
                     <div className="hidden lg:block lg:col-span-3 xl:col-span-2">
                         <nav className="sticky divide-y divide-gray-300 top-4">
                             <div className="pb-8 space-y-1">
-                                {MAIN_NAVIGATION.filter(n => n.restricted !== false).map((item) => (
+                                {MAIN_NAVIGATION.filter(n => n.restricted).map((item) => (
                                     <Link
                                         key={item.name}
                                         to={item.to}
