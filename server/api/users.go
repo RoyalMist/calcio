@@ -1,6 +1,7 @@
 package api
 
 import (
+	"calcio/ent"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
@@ -30,43 +31,21 @@ func (u Users) Start(base string, middlewares ...fiber.Handler) {
 		}
 	}
 
-	router.Get("", u.All)
+	router.Get("", u.all)
 }
 
-type dummyUsers struct {
-	Name      string `json:"name"`
-	IsAdmin   bool   `json:"isAdmin"`
-	Mail      string `json:"mail"`
-	AvatarUrl string `json:"avatarUrl"`
-}
-
-func (u Users) All(ctx *fiber.Ctx) error {
-	users := []dummyUsers{
-		{
-			Name:      "Jane",
-			IsAdmin:   true,
-			Mail:      "jane@calcio.com",
-			AvatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-		},
-		{
-			Name:      "John",
-			IsAdmin:   false,
-			Mail:      "john@calcio.com",
-			AvatarUrl: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-		},
-		{
-			Name:      "Kristin",
-			IsAdmin:   false,
-			Mail:      "kristin@calcio.com",
-			AvatarUrl: "https://images.unsplash.com/photo-1532417344469-368f9ae6d187?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-		},
-		{
-			Name:      "Jonas",
-			IsAdmin:   false,
-			Mail:      "jonas@calcio.com",
-			AvatarUrl: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
-		},
-	}
-
+// @Summary Fetch all Calcio's users.
+// @Description Retrieves all Calcio's users as a json list.
+// @Tags players
+// @Accept json
+// @Produce json
+// @Success 200 {array} ent.User "The list of users"
+// @Failure 400 {string} string "When the token is absent"
+// @Failure 401 {string} string "When the token is invalid"
+// @Failure 500 {string} string "When something went wrong"
+// @Param Authorization header string true "The authentication token"
+// @Router /api/users [get]
+func (u Users) all(ctx *fiber.Ctx) error {
+	var users = make([]ent.User, 0, 0)
 	return ctx.JSON(users)
 }

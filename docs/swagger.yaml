@@ -6,6 +6,18 @@ definitions:
       password:
         type: string
     type: object
+  ent.User:
+    properties:
+      admin:
+        description: Admin holds the value of the "admin" field.
+        type: boolean
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+    type: object
 info:
   contact:
     email: royalmist@calcio.ch
@@ -57,6 +69,41 @@ paths:
       summary: Permits a user to log in to Calcio if credentials are valid.
       tags:
         - authentication
+  /api/users:
+    get:
+      consumes:
+        - application/json
+      description: Retrieves all Calcio's users as a json list.
+      parameters:
+        - description: The authentication token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: The list of users
+          schema:
+            items:
+              $ref: '#/definitions/ent.User'
+            type: array
+        "400":
+          description: When the token is absent
+          schema:
+            type: string
+        "401":
+          description: When the token is invalid
+          schema:
+            type: string
+        "500":
+          description: When something went wrong
+          schema:
+            type: string
+      summary: Fetch all Calcio's users.
+      tags:
+        - players
 schemes:
   - http
 swagger: "2.0"

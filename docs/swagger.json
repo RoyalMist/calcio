@@ -75,6 +75,59 @@
           }
         }
       }
+    },
+    "/api/users": {
+      "get": {
+        "description": "Retrieves all Calcio's users as a json list.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "players"
+        ],
+        "summary": "Fetch all Calcio's users.",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The authentication token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The list of users",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ent.User"
+              }
+            }
+          },
+          "400": {
+            "description": "When the token is absent",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "401": {
+            "description": "When the token is invalid",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "When something went wrong",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -85,6 +138,23 @@
           "type": "string"
         },
         "password": {
+          "type": "string"
+        }
+      }
+    },
+    "ent.User": {
+      "type": "object",
+      "properties": {
+        "admin": {
+          "description": "Admin holds the value of the \"admin\" field.",
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID of the ent.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name holds the value of the \"name\" field.",
           "type": "string"
         }
       }
