@@ -4,6 +4,7 @@ package ent
 
 import (
 	"calcio/ent/game"
+	"calcio/ent/participation"
 	"calcio/ent/predicate"
 	"context"
 	"fmt"
@@ -26,9 +27,45 @@ func (gu *GameUpdate) Where(ps ...predicate.Game) *GameUpdate {
 	return gu
 }
 
+// AddParticipationIDs adds the "participations" edge to the Participation entity by IDs.
+func (gu *GameUpdate) AddParticipationIDs(ids ...int) *GameUpdate {
+	gu.mutation.AddParticipationIDs(ids...)
+	return gu
+}
+
+// AddParticipations adds the "participations" edges to the Participation entity.
+func (gu *GameUpdate) AddParticipations(p ...*Participation) *GameUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gu.AddParticipationIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (gu *GameUpdate) Mutation() *GameMutation {
 	return gu.mutation
+}
+
+// ClearParticipations clears all "participations" edges to the Participation entity.
+func (gu *GameUpdate) ClearParticipations() *GameUpdate {
+	gu.mutation.ClearParticipations()
+	return gu
+}
+
+// RemoveParticipationIDs removes the "participations" edge to Participation entities by IDs.
+func (gu *GameUpdate) RemoveParticipationIDs(ids ...int) *GameUpdate {
+	gu.mutation.RemoveParticipationIDs(ids...)
+	return gu
+}
+
+// RemoveParticipations removes "participations" edges to Participation entities.
+func (gu *GameUpdate) RemoveParticipations(p ...*Participation) *GameUpdate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gu.RemoveParticipationIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -91,7 +128,7 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Table:   game.Table,
 			Columns: game.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: game.FieldID,
 			},
 		},
@@ -102,6 +139,60 @@ func (gu *GameUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if gu.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.RemovedParticipationsIDs(); len(nodes) > 0 && !gu.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := gu.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, gu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -122,9 +213,45 @@ type GameUpdateOne struct {
 	mutation *GameMutation
 }
 
+// AddParticipationIDs adds the "participations" edge to the Participation entity by IDs.
+func (guo *GameUpdateOne) AddParticipationIDs(ids ...int) *GameUpdateOne {
+	guo.mutation.AddParticipationIDs(ids...)
+	return guo
+}
+
+// AddParticipations adds the "participations" edges to the Participation entity.
+func (guo *GameUpdateOne) AddParticipations(p ...*Participation) *GameUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return guo.AddParticipationIDs(ids...)
+}
+
 // Mutation returns the GameMutation object of the builder.
 func (guo *GameUpdateOne) Mutation() *GameMutation {
 	return guo.mutation
+}
+
+// ClearParticipations clears all "participations" edges to the Participation entity.
+func (guo *GameUpdateOne) ClearParticipations() *GameUpdateOne {
+	guo.mutation.ClearParticipations()
+	return guo
+}
+
+// RemoveParticipationIDs removes the "participations" edge to Participation entities by IDs.
+func (guo *GameUpdateOne) RemoveParticipationIDs(ids ...int) *GameUpdateOne {
+	guo.mutation.RemoveParticipationIDs(ids...)
+	return guo
+}
+
+// RemoveParticipations removes "participations" edges to Participation entities.
+func (guo *GameUpdateOne) RemoveParticipations(p ...*Participation) *GameUpdateOne {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return guo.RemoveParticipationIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -194,7 +321,7 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 			Table:   game.Table,
 			Columns: game.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: game.FieldID,
 			},
 		},
@@ -222,6 +349,60 @@ func (guo *GameUpdateOne) sqlSave(ctx context.Context) (_node *Game, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if guo.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.RemovedParticipationsIDs(); len(nodes) > 0 && !guo.mutation.ParticipationsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := guo.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Game{config: guo.config}
 	_spec.Assign = _node.assignValues

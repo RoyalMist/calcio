@@ -18,6 +18,27 @@ type Team struct {
 	ID uuid.UUID `json:"id,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the TeamQuery when eager-loading is set.
+	Edges TeamEdges `json:"edges"`
+}
+
+// TeamEdges holds the relations/edges for other nodes in the graph.
+type TeamEdges struct {
+	// Players holds the value of the players edge.
+	Players []*User `json:"players,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// PlayersOrErr returns the Players value or an error if the edge
+// was not loaded in eager-loading.
+func (e TeamEdges) PlayersOrErr() ([]*User, error) {
+	if e.loadedTypes[0] {
+		return e.Players, nil
+	}
+	return nil, &NotLoadedError{edge: "players"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -59,6 +80,11 @@ func (t *Team) assignValues(columns []string, values []interface{}) error {
 		}
 	}
 	return nil
+}
+
+// QueryPlayers queries the "players" edge of the Team entity.
+func (t *Team) QueryPlayers() *UserQuery {
+	return (&TeamClient{config: t.config}).QueryPlayers(t)
 }
 
 // Update returns a builder for updating this Team.

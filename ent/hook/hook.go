@@ -21,6 +21,19 @@ func (f GameFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error)
 	return f(ctx, mv)
 }
 
+// The ParticipationFunc type is an adapter to allow the use of ordinary
+// function as Participation mutator.
+type ParticipationFunc func(context.Context, *ent.ParticipationMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f ParticipationFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	mv, ok := m.(*ent.ParticipationMutation)
+	if !ok {
+		return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ParticipationMutation", m)
+	}
+	return f(ctx, mv)
+}
+
 // The TeamFunc type is an adapter to allow the use of ordinary
 // function as Team mutator.
 type TeamFunc func(context.Context, *ent.TeamMutation) (ent.Value, error)

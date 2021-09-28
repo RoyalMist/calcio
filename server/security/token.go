@@ -69,6 +69,6 @@ func IsAuthenticated(ctx *fiber.Ctx) error {
 		return fiber.ErrUnauthorized
 	}
 
-	ctx.SetUserContext(newContext(ctx.UserContext(), claims))
+	ctx.SetUserContext(NewContext(ctx.UserContext(), claims))
 	return ctx.Next()
 }

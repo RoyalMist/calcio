@@ -4,11 +4,15 @@ package ent
 
 import (
 	"calcio/ent/game"
+	"calcio/ent/participation"
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GameCreate is the builder for creating a Game entity.
@@ -16,6 +20,41 @@ type GameCreate struct {
 	config
 	mutation *GameMutation
 	hooks    []Hook
+}
+
+// SetDate sets the "date" field.
+func (gc *GameCreate) SetDate(t time.Time) *GameCreate {
+	gc.mutation.SetDate(t)
+	return gc
+}
+
+// SetNillableDate sets the "date" field if the given value is not nil.
+func (gc *GameCreate) SetNillableDate(t *time.Time) *GameCreate {
+	if t != nil {
+		gc.SetDate(*t)
+	}
+	return gc
+}
+
+// SetID sets the "id" field.
+func (gc *GameCreate) SetID(u uuid.UUID) *GameCreate {
+	gc.mutation.SetID(u)
+	return gc
+}
+
+// AddParticipationIDs adds the "participations" edge to the Participation entity by IDs.
+func (gc *GameCreate) AddParticipationIDs(ids ...int) *GameCreate {
+	gc.mutation.AddParticipationIDs(ids...)
+	return gc
+}
+
+// AddParticipations adds the "participations" edges to the Participation entity.
+func (gc *GameCreate) AddParticipations(p ...*Participation) *GameCreate {
+	ids := make([]int, len(p))
+	for i := range p {
+		ids[i] = p[i].ID
+	}
+	return gc.AddParticipationIDs(ids...)
 }
 
 // Mutation returns the GameMutation object of the builder.
@@ -29,6 +68,7 @@ func (gc *GameCreate) Save(ctx context.Context) (*Game, error) {
 		err  error
 		node *Game
 	)
+	gc.defaults()
 	if len(gc.hooks) == 0 {
 		if err = gc.check(); err != nil {
 			return nil, err
@@ -86,8 +126,23 @@ func (gc *GameCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (gc *GameCreate) defaults() {
+	if _, ok := gc.mutation.Date(); !ok {
+		v := game.DefaultDate()
+		gc.mutation.SetDate(v)
+	}
+	if _, ok := gc.mutation.ID(); !ok {
+		v := game.DefaultID()
+		gc.mutation.SetID(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (gc *GameCreate) check() error {
+	if _, ok := gc.mutation.Date(); !ok {
+		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "date"`)}
+	}
 	return nil
 }
 
@@ -99,8 +154,9 @@ func (gc *GameCreate) sqlSave(ctx context.Context) (*Game, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		_node.ID = _spec.ID.Value.(uuid.UUID)
+	}
 	return _node, nil
 }
 
@@ -110,11 +166,42 @@ func (gc *GameCreate) createSpec() (*Game, *sqlgraph.CreateSpec) {
 		_spec = &sqlgraph.CreateSpec{
 			Table: game.Table,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: game.FieldID,
 			},
 		}
 	)
+	if id, ok := gc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
+	if value, ok := gc.mutation.Date(); ok {
+		_spec.Fields = append(_spec.Fields, &sqlgraph.FieldSpec{
+			Type:   field.TypeTime,
+			Value:  value,
+			Column: game.FieldDate,
+		})
+		_node.Date = value
+	}
+	if nodes := gc.mutation.ParticipationsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: true,
+			Table:   game.ParticipationsTable,
+			Columns: []string{game.ParticipationsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeInt,
+					Column: participation.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	return _node, _spec
 }
 
@@ -132,6 +219,7 @@ func (gcb *GameCreateBulk) Save(ctx context.Context) ([]*Game, error) {
 	for i := range gcb.builders {
 		func(i int, root context.Context) {
 			builder := gcb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*GameMutation)
 				if !ok {
@@ -159,10 +247,6 @@ func (gcb *GameCreateBulk) Save(ctx context.Context) ([]*Game, error) {
 				}
 				mutation.id = &nodes[i].ID
 				mutation.done = true
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				return nodes[i], nil
 			})
 			for i := len(builder.hooks) - 1; i >= 0; i-- {

@@ -7,7 +7,7 @@ import (
 )
 
 func CreateAdmin(client *ent.Client) (err error) {
-	ctx := newContext(context.Background(), Claims{
+	ctx := NewContext(context.Background(), Claims{
 		UserId:  "admin",
 		IsAdmin: true,
 	})

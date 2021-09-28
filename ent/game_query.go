@@ -4,8 +4,10 @@ package ent
 
 import (
 	"calcio/ent/game"
+	"calcio/ent/participation"
 	"calcio/ent/predicate"
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -13,6 +15,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 )
 
 // GameQuery is the builder for querying Game entities.
@@ -24,6 +27,8 @@ type GameQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Game
+	// eager-loading edges.
+	withParticipations *ParticipationQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -60,6 +65,28 @@ func (gq *GameQuery) Order(o ...OrderFunc) *GameQuery {
 	return gq
 }
 
+// QueryParticipations chains the current query on the "participations" edge.
+func (gq *GameQuery) QueryParticipations() *ParticipationQuery {
+	query := &ParticipationQuery{config: gq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := gq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := gq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, selector),
+			sqlgraph.To(participation.Table, participation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, game.ParticipationsTable, game.ParticipationsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(gq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Game entity from the query.
 // Returns a *NotFoundError when no Game was found.
 func (gq *GameQuery) First(ctx context.Context) (*Game, error) {
@@ -84,8 +111,8 @@ func (gq *GameQuery) FirstX(ctx context.Context) *Game {
 
 // FirstID returns the first Game ID from the query.
 // Returns a *NotFoundError when no Game ID was found.
-func (gq *GameQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (gq *GameQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = gq.Limit(1).IDs(ctx); err != nil {
 		return
 	}
@@ -97,7 +124,7 @@ func (gq *GameQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (gq *GameQuery) FirstIDX(ctx context.Context) int {
+func (gq *GameQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := gq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -135,8 +162,8 @@ func (gq *GameQuery) OnlyX(ctx context.Context) *Game {
 // OnlyID is like Only, but returns the only Game ID in the query.
 // Returns a *NotSingularError when exactly one Game ID is not found.
 // Returns a *NotFoundError when no entities are found.
-func (gq *GameQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (gq *GameQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = gq.Limit(2).IDs(ctx); err != nil {
 		return
 	}
@@ -152,7 +179,7 @@ func (gq *GameQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (gq *GameQuery) OnlyIDX(ctx context.Context) int {
+func (gq *GameQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := gq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,8 +205,8 @@ func (gq *GameQuery) AllX(ctx context.Context) []*Game {
 }
 
 // IDs executes the query and returns a list of Game IDs.
-func (gq *GameQuery) IDs(ctx context.Context) ([]int, error) {
-	var ids []int
+func (gq *GameQuery) IDs(ctx context.Context) ([]uuid.UUID, error) {
+	var ids []uuid.UUID
 	if err := gq.Select(game.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
@@ -187,7 +214,7 @@ func (gq *GameQuery) IDs(ctx context.Context) ([]int, error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (gq *GameQuery) IDsX(ctx context.Context) []int {
+func (gq *GameQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := gq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -236,19 +263,44 @@ func (gq *GameQuery) Clone() *GameQuery {
 		return nil
 	}
 	return &GameQuery{
-		config:     gq.config,
-		limit:      gq.limit,
-		offset:     gq.offset,
-		order:      append([]OrderFunc{}, gq.order...),
-		predicates: append([]predicate.Game{}, gq.predicates...),
+		config:             gq.config,
+		limit:              gq.limit,
+		offset:             gq.offset,
+		order:              append([]OrderFunc{}, gq.order...),
+		predicates:         append([]predicate.Game{}, gq.predicates...),
+		withParticipations: gq.withParticipations.Clone(),
 		// clone intermediate query.
 		sql:  gq.sql.Clone(),
 		path: gq.path,
 	}
 }
 
+// WithParticipations tells the query-builder to eager-load the nodes that are connected to
+// the "participations" edge. The optional arguments are used to configure the query builder of the edge.
+func (gq *GameQuery) WithParticipations(opts ...func(*ParticipationQuery)) *GameQuery {
+	query := &ParticipationQuery{config: gq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	gq.withParticipations = query
+	return gq
+}
+
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Date time.Time `json:"date,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Game.Query().
+//		GroupBy(game.FieldDate).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
+//
 func (gq *GameQuery) GroupBy(field string, fields ...string) *GameGroupBy {
 	group := &GameGroupBy{config: gq.config}
 	group.fields = append([]string{field}, fields...)
@@ -263,6 +315,17 @@ func (gq *GameQuery) GroupBy(field string, fields ...string) *GameGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Date time.Time `json:"date,omitempty"`
+//	}
+//
+//	client.Game.Query().
+//		Select(game.FieldDate).
+//		Scan(ctx, &v)
+//
 func (gq *GameQuery) Select(fields ...string) *GameSelect {
 	gq.fields = append(gq.fields, fields...)
 	return &GameSelect{GameQuery: gq}
@@ -286,8 +349,11 @@ func (gq *GameQuery) prepareQuery(ctx context.Context) error {
 
 func (gq *GameQuery) sqlAll(ctx context.Context) ([]*Game, error) {
 	var (
-		nodes = []*Game{}
-		_spec = gq.querySpec()
+		nodes       = []*Game{}
+		_spec       = gq.querySpec()
+		loadedTypes = [1]bool{
+			gq.withParticipations != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Game{config: gq.config}
@@ -299,6 +365,7 @@ func (gq *GameQuery) sqlAll(ctx context.Context) ([]*Game, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, gq.driver, _spec); err != nil {
@@ -307,6 +374,36 @@ func (gq *GameQuery) sqlAll(ctx context.Context) ([]*Game, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := gq.withParticipations; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		nodeids := make(map[uuid.UUID]*Game)
+		for i := range nodes {
+			fks = append(fks, nodes[i].ID)
+			nodeids[nodes[i].ID] = nodes[i]
+			nodes[i].Edges.Participations = []*Participation{}
+		}
+		query.withFKs = true
+		query.Where(predicate.Participation(func(s *sql.Selector) {
+			s.Where(sql.InValues(game.ParticipationsColumn, fks...))
+		}))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			fk := n.participation_game
+			if fk == nil {
+				return nil, fmt.Errorf(`foreign-key "participation_game" is nil for node %v`, n.ID)
+			}
+			node, ok := nodeids[*fk]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected foreign-key "participation_game" returned %v for node %v`, *fk, n.ID)
+			}
+			node.Edges.Participations = append(node.Edges.Participations, n)
+		}
+	}
+
 	return nodes, nil
 }
 
@@ -329,7 +426,7 @@ func (gq *GameQuery) querySpec() *sqlgraph.QuerySpec {
 			Table:   game.Table,
 			Columns: game.Columns,
 			ID: &sqlgraph.FieldSpec{
-				Type:   field.TypeInt,
+				Type:   field.TypeUUID,
 				Column: game.FieldID,
 			},
 		},

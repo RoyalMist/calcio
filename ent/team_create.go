@@ -4,6 +4,7 @@ package ent
 
 import (
 	"calcio/ent/team"
+	"calcio/ent/user"
 	"context"
 	"errors"
 	"fmt"
@@ -32,6 +33,21 @@ func (tc *TeamCreate) SetID(u uuid.UUID) *TeamCreate {
 	return tc
 }
 
+// AddPlayerIDs adds the "players" edge to the User entity by IDs.
+func (tc *TeamCreate) AddPlayerIDs(ids ...uuid.UUID) *TeamCreate {
+	tc.mutation.AddPlayerIDs(ids...)
+	return tc
+}
+
+// AddPlayers adds the "players" edges to the User entity.
+func (tc *TeamCreate) AddPlayers(u ...*User) *TeamCreate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return tc.AddPlayerIDs(ids...)
+}
+
 // Mutation returns the TeamMutation object of the builder.
 func (tc *TeamCreate) Mutation() *TeamMutation {
 	return tc.mutation
@@ -43,7 +59,9 @@ func (tc *TeamCreate) Save(ctx context.Context) (*Team, error) {
 		err  error
 		node *Team
 	)
-	tc.defaults()
+	if err := tc.defaults(); err != nil {
+		return nil, err
+	}
 	if len(tc.hooks) == 0 {
 		if err = tc.check(); err != nil {
 			return nil, err
@@ -102,11 +120,15 @@ func (tc *TeamCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (tc *TeamCreate) defaults() {
+func (tc *TeamCreate) defaults() error {
 	if _, ok := tc.mutation.ID(); !ok {
+		if team.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized team.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := team.DefaultID()
 		tc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.
@@ -118,6 +140,9 @@ func (tc *TeamCreate) check() error {
 		if err := team.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "name": %w`, err)}
 		}
+	}
+	if len(tc.mutation.PlayersIDs()) == 0 {
+		return &ValidationError{Name: "players", err: errors.New("ent: missing required edge \"players\"")}
 	}
 	return nil
 }
@@ -158,6 +183,25 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 			Column: team.FieldName,
 		})
 		_node.Name = value
+	}
+	if nodes := tc.mutation.PlayersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: true,
+			Table:   team.PlayersTable,
+			Columns: team.PlayersPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

@@ -4,33 +4,36 @@ package game
 
 import (
 	"calcio/ent/predicate"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Game {
+func ID(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Game {
+func IDEQ(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.EQ(s.C(FieldID), id))
 	})
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Game {
+func IDNEQ(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.NEQ(s.C(FieldID), id))
 	})
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Game {
+func IDIn(ids ...uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
@@ -47,7 +50,7 @@ func IDIn(ids ...int) predicate.Game {
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Game {
+func IDNotIn(ids ...uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		// if not arguments were provided, append the FALSE constants,
 		// since we can't apply "IN ()". This will make this predicate falsy.
@@ -64,30 +67,141 @@ func IDNotIn(ids ...int) predicate.Game {
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Game {
+func IDGT(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.GT(s.C(FieldID), id))
 	})
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Game {
+func IDGTE(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.GTE(s.C(FieldID), id))
 	})
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Game {
+func IDLT(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.LT(s.C(FieldID), id))
 	})
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Game {
+func IDLTE(id uuid.UUID) predicate.Game {
 	return predicate.Game(func(s *sql.Selector) {
 		s.Where(sql.LTE(s.C(FieldID), id))
+	})
+}
+
+// Date applies equality check predicate on the "date" field. It's identical to DateEQ.
+func Date(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDate), v))
+	})
+}
+
+// DateEQ applies the EQ predicate on the "date" field.
+func DateEQ(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.EQ(s.C(FieldDate), v))
+	})
+}
+
+// DateNEQ applies the NEQ predicate on the "date" field.
+func DateNEQ(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.NEQ(s.C(FieldDate), v))
+	})
+}
+
+// DateIn applies the In predicate on the "date" field.
+func DateIn(vs ...time.Time) predicate.Game {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Game(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.In(s.C(FieldDate), v...))
+	})
+}
+
+// DateNotIn applies the NotIn predicate on the "date" field.
+func DateNotIn(vs ...time.Time) predicate.Game {
+	v := make([]interface{}, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Game(func(s *sql.Selector) {
+		// if not arguments were provided, append the FALSE constants,
+		// since we can't apply "IN ()". This will make this predicate falsy.
+		if len(v) == 0 {
+			s.Where(sql.False())
+			return
+		}
+		s.Where(sql.NotIn(s.C(FieldDate), v...))
+	})
+}
+
+// DateGT applies the GT predicate on the "date" field.
+func DateGT(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.GT(s.C(FieldDate), v))
+	})
+}
+
+// DateGTE applies the GTE predicate on the "date" field.
+func DateGTE(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.GTE(s.C(FieldDate), v))
+	})
+}
+
+// DateLT applies the LT predicate on the "date" field.
+func DateLT(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.LT(s.C(FieldDate), v))
+	})
+}
+
+// DateLTE applies the LTE predicate on the "date" field.
+func DateLTE(v time.Time) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		s.Where(sql.LTE(s.C(FieldDate), v))
+	})
+}
+
+// HasParticipations applies the HasEdge predicate on the "participations" edge.
+func HasParticipations() predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ParticipationsTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, ParticipationsTable, ParticipationsColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasParticipationsWith applies the HasEdge predicate on the "participations" edge with a given conditions (other predicates).
+func HasParticipationsWith(preds ...predicate.Participation) predicate.Game {
+	return predicate.Game(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(ParticipationsInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, ParticipationsTable, ParticipationsColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

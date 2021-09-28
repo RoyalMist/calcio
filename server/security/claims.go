@@ -34,6 +34,6 @@ func FromContext(ctx context.Context) Claims {
 }
 
 // NewContext returns a copy of parent context with the given Viewer attached with it.
-func newContext(parent context.Context, c Claims) context.Context {
+func NewContext(parent context.Context, c Claims) context.Context {
 	return context.WithValue(parent, ctxKey{}, c)
 }

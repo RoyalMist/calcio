@@ -10,11 +10,13 @@ import (
 	"calcio/ent/migrate"
 
 	"calcio/ent/game"
+	"calcio/ent/participation"
 	"calcio/ent/team"
 	"calcio/ent/user"
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -25,6 +27,8 @@ type Client struct {
 	Schema *migrate.Schema
 	// Game is the client for interacting with the Game builders.
 	Game *GameClient
+	// Participation is the client for interacting with the Participation builders.
+	Participation *ParticipationClient
 	// Team is the client for interacting with the Team builders.
 	Team *TeamClient
 	// User is the client for interacting with the User builders.
@@ -43,6 +47,7 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Game = NewGameClient(c.config)
+	c.Participation = NewParticipationClient(c.config)
 	c.Team = NewTeamClient(c.config)
 	c.User = NewUserClient(c.config)
 }
@@ -76,11 +81,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Game:   NewGameClient(cfg),
-		Team:   NewTeamClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:           ctx,
+		config:        cfg,
+		Game:          NewGameClient(cfg),
+		Participation: NewParticipationClient(cfg),
+		Team:          NewTeamClient(cfg),
+		User:          NewUserClient(cfg),
 	}, nil
 }
 
@@ -98,10 +104,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		config: cfg,
-		Game:   NewGameClient(cfg),
-		Team:   NewTeamClient(cfg),
-		User:   NewUserClient(cfg),
+		config:        cfg,
+		Game:          NewGameClient(cfg),
+		Participation: NewParticipationClient(cfg),
+		Team:          NewTeamClient(cfg),
+		User:          NewUserClient(cfg),
 	}, nil
 }
 
@@ -132,6 +139,7 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Game.Use(hooks...)
+	c.Participation.Use(hooks...)
 	c.Team.Use(hooks...)
 	c.User.Use(hooks...)
 }
@@ -176,7 +184,7 @@ func (c *GameClient) UpdateOne(ga *Game) *GameUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *GameClient) UpdateOneID(id int) *GameUpdateOne {
+func (c *GameClient) UpdateOneID(id uuid.UUID) *GameUpdateOne {
 	mutation := newGameMutation(c.config, OpUpdateOne, withGameID(id))
 	return &GameUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -193,7 +201,7 @@ func (c *GameClient) DeleteOne(ga *Game) *GameDeleteOne {
 }
 
 // DeleteOneID returns a delete builder for the given id.
-func (c *GameClient) DeleteOneID(id int) *GameDeleteOne {
+func (c *GameClient) DeleteOneID(id uuid.UUID) *GameDeleteOne {
 	builder := c.Delete().Where(game.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -208,12 +216,12 @@ func (c *GameClient) Query() *GameQuery {
 }
 
 // Get returns a Game entity by its id.
-func (c *GameClient) Get(ctx context.Context, id int) (*Game, error) {
+func (c *GameClient) Get(ctx context.Context, id uuid.UUID) (*Game, error) {
 	return c.Query().Where(game.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *GameClient) GetX(ctx context.Context, id int) *Game {
+func (c *GameClient) GetX(ctx context.Context, id uuid.UUID) *Game {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -221,9 +229,147 @@ func (c *GameClient) GetX(ctx context.Context, id int) *Game {
 	return obj
 }
 
+// QueryParticipations queries the participations edge of a Game.
+func (c *GameClient) QueryParticipations(ga *Game) *ParticipationQuery {
+	query := &ParticipationQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := ga.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(game.Table, game.FieldID, id),
+			sqlgraph.To(participation.Table, participation.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, true, game.ParticipationsTable, game.ParticipationsColumn),
+		)
+		fromV = sqlgraph.Neighbors(ga.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *GameClient) Hooks() []Hook {
 	return c.hooks.Game
+}
+
+// ParticipationClient is a client for the Participation schema.
+type ParticipationClient struct {
+	config
+}
+
+// NewParticipationClient returns a client for the Participation from the given config.
+func NewParticipationClient(c config) *ParticipationClient {
+	return &ParticipationClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `participation.Hooks(f(g(h())))`.
+func (c *ParticipationClient) Use(hooks ...Hook) {
+	c.hooks.Participation = append(c.hooks.Participation, hooks...)
+}
+
+// Create returns a create builder for Participation.
+func (c *ParticipationClient) Create() *ParticipationCreate {
+	mutation := newParticipationMutation(c.config, OpCreate)
+	return &ParticipationCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Participation entities.
+func (c *ParticipationClient) CreateBulk(builders ...*ParticipationCreate) *ParticipationCreateBulk {
+	return &ParticipationCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Participation.
+func (c *ParticipationClient) Update() *ParticipationUpdate {
+	mutation := newParticipationMutation(c.config, OpUpdate)
+	return &ParticipationUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *ParticipationClient) UpdateOne(pa *Participation) *ParticipationUpdateOne {
+	mutation := newParticipationMutation(c.config, OpUpdateOne, withParticipation(pa))
+	return &ParticipationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *ParticipationClient) UpdateOneID(id int) *ParticipationUpdateOne {
+	mutation := newParticipationMutation(c.config, OpUpdateOne, withParticipationID(id))
+	return &ParticipationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Participation.
+func (c *ParticipationClient) Delete() *ParticipationDelete {
+	mutation := newParticipationMutation(c.config, OpDelete)
+	return &ParticipationDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a delete builder for the given entity.
+func (c *ParticipationClient) DeleteOne(pa *Participation) *ParticipationDeleteOne {
+	return c.DeleteOneID(pa.ID)
+}
+
+// DeleteOneID returns a delete builder for the given id.
+func (c *ParticipationClient) DeleteOneID(id int) *ParticipationDeleteOne {
+	builder := c.Delete().Where(participation.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &ParticipationDeleteOne{builder}
+}
+
+// Query returns a query builder for Participation.
+func (c *ParticipationClient) Query() *ParticipationQuery {
+	return &ParticipationQuery{
+		config: c.config,
+	}
+}
+
+// Get returns a Participation entity by its id.
+func (c *ParticipationClient) Get(ctx context.Context, id int) (*Participation, error) {
+	return c.Query().Where(participation.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *ParticipationClient) GetX(ctx context.Context, id int) *Participation {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryGame queries the game edge of a Participation.
+func (c *ParticipationClient) QueryGame(pa *Participation) *GameQuery {
+	query := &GameQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(participation.Table, participation.FieldID, id),
+			sqlgraph.To(game.Table, game.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, participation.GameTable, participation.GameColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryTeam queries the team edge of a Participation.
+func (c *ParticipationClient) QueryTeam(pa *Participation) *TeamQuery {
+	query := &TeamQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := pa.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(participation.Table, participation.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, false, participation.TeamTable, participation.TeamColumn),
+		)
+		fromV = sqlgraph.Neighbors(pa.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *ParticipationClient) Hooks() []Hook {
+	return c.hooks.Participation
 }
 
 // TeamClient is a client for the Team schema.
@@ -311,9 +457,26 @@ func (c *TeamClient) GetX(ctx context.Context, id uuid.UUID) *Team {
 	return obj
 }
 
+// QueryPlayers queries the players edge of a Team.
+func (c *TeamClient) QueryPlayers(t *Team) *UserQuery {
+	query := &UserQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := t.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, team.PlayersTable, team.PlayersPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *TeamClient) Hooks() []Hook {
-	return c.hooks.Team
+	hooks := c.hooks.Team
+	return append(hooks[:len(hooks):len(hooks)], team.Hooks[:]...)
 }
 
 // UserClient is a client for the User schema.
@@ -399,6 +562,22 @@ func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryTeams queries the teams edge of a User.
+func (c *UserClient) QueryTeams(u *User) *TeamQuery {
+	query := &TeamQuery{config: c.config}
+	query.path = func(ctx context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(team.Table, team.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, false, user.TeamsTable, user.TeamsPrimaryKey...),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

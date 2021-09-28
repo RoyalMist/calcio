@@ -3,6 +3,7 @@
 package ent
 
 import (
+	"calcio/ent/team"
 	"calcio/ent/user"
 	"context"
 	"errors"
@@ -50,6 +51,21 @@ func (uc *UserCreate) SetNillableAdmin(b *bool) *UserCreate {
 func (uc *UserCreate) SetID(u uuid.UUID) *UserCreate {
 	uc.mutation.SetID(u)
 	return uc
+}
+
+// AddTeamIDs adds the "teams" edge to the Team entity by IDs.
+func (uc *UserCreate) AddTeamIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddTeamIDs(ids...)
+	return uc
+}
+
+// AddTeams adds the "teams" edges to the Team entity.
+func (uc *UserCreate) AddTeams(t ...*Team) *UserCreate {
+	ids := make([]uuid.UUID, len(t))
+	for i := range t {
+		ids[i] = t[i].ID
+	}
+	return uc.AddTeamIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -215,6 +231,25 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Column: user.FieldAdmin,
 		})
 		_node.Admin = value
+	}
+	if nodes := uc.mutation.TeamsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2M,
+			Inverse: false,
+			Table:   user.TeamsTable,
+			Columns: user.TeamsPrimaryKey,
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: team.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

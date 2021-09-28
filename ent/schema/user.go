@@ -9,6 +9,7 @@ import (
 	"calcio/ent/privacy"
 	"calcio/server/security"
 	"entgo.io/ent"
+	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 )
@@ -32,7 +33,9 @@ func (User) Fields() []ent.Field {
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("teams", Team.Type),
+	}
 }
 
 func (User) Hooks() []ent.Hook {
@@ -53,7 +56,7 @@ func (User) Hooks() []ent.Hook {
 					return mutator.Mutate(ctx, mutation)
 				}
 
-				return nil, fmt.Errorf("password was not set")
+				return mutator.Mutate(ctx, mutation)
 			})
 		}, ent.OpCreate|ent.OpUpdate),
 	}
@@ -62,6 +65,7 @@ func (User) Hooks() []ent.Hook {
 func (User) Policy() ent.Policy {
 	return privacy.Policy{
 		Query: privacy.QueryPolicy{
+			security.DenyIfNotLoggedIn(),
 			privacy.AlwaysAllowRule(),
 		},
 		Mutation: privacy.MutationPolicy{

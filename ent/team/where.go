@@ -6,6 +6,7 @@ import (
 	"calcio/ent/predicate"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 )
 
@@ -207,6 +208,34 @@ func NameEqualFold(v string) predicate.Team {
 func NameContainsFold(v string) predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		s.Where(sql.ContainsFold(s.C(FieldName), v))
+	})
+}
+
+// HasPlayers applies the HasEdge predicate on the "players" edge.
+func HasPlayers() predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PlayersTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, PlayersTable, PlayersPrimaryKey...),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasPlayersWith applies the HasEdge predicate on the "players" edge with a given conditions (other predicates).
+func HasPlayersWith(preds ...predicate.User) predicate.Team {
+	return predicate.Team(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(PlayersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, PlayersTable, PlayersPrimaryKey...),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
 	})
 }
 

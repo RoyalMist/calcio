@@ -12,6 +12,7 @@ import (
 	_ "calcio/ent/runtime"
 	"calcio/server/api"
 	"calcio/server/security"
+	"calcio/server/service"
 	"calcio/server/settings"
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
@@ -37,6 +38,8 @@ func main() {
 			settings.Module,
 			api.AuthModule,
 			api.UsersModule,
+			api.GamesModule,
+			service.UserModule,
 		),
 		fx.Invoke(setup),
 		fx.Invoke(run),

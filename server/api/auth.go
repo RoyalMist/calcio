@@ -3,29 +3,28 @@ package api
 import (
 	"time"
 
-	"calcio/ent"
-	"calcio/ent/user"
 	"calcio/server/security"
+	"calcio/server/service"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
 
 type Auth struct {
-	app    *fiber.App
-	log    *zap.SugaredLogger
-	client *ent.Client
+	app      *fiber.App
+	log      *zap.SugaredLogger
+	uService *service.User
 }
 
 // AuthModule makes the injectable available for FX.
 var AuthModule = fx.Provide(NewAuth)
 
 // NewAuth creates a new injectable.
-func NewAuth(app *fiber.App, logger *zap.SugaredLogger, client *ent.Client) *Auth {
+func NewAuth(app *fiber.App, logger *zap.SugaredLogger, user *service.User) *Auth {
 	return &Auth{
-		app:    app,
-		log:    logger,
-		client: client,
+		app:      app,
+		log:      logger,
+		uService: user,
 	}
 }
 
@@ -63,12 +62,8 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	u, err := a.client.User.Query().Where(user.Name(l.Name)).First(ctx.UserContext())
+	u, err := a.uService.Login(l.Name, l.Password)
 	if err != nil {
-		return fiber.ErrBadRequest
-	}
-
-	if !security.CheckPassword(l.Password, u.Password) {
 		return fiber.ErrBadRequest
 	}
 

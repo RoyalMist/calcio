@@ -3,10 +3,13 @@
 package runtime
 
 import (
+	"calcio/ent/game"
+	"calcio/ent/participation"
 	"calcio/ent/schema"
 	"calcio/ent/team"
 	"calcio/ent/user"
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -18,6 +21,36 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	gameFields := schema.Game{}.Fields()
+	_ = gameFields
+	// gameDescDate is the schema descriptor for date field.
+	gameDescDate := gameFields[1].Descriptor()
+	// game.DefaultDate holds the default value on creation for the date field.
+	game.DefaultDate = gameDescDate.Default.(func() time.Time)
+	// gameDescID is the schema descriptor for id field.
+	gameDescID := gameFields[0].Descriptor()
+	// game.DefaultID holds the default value on creation for the id field.
+	game.DefaultID = gameDescID.Default.(func() uuid.UUID)
+	participationFields := schema.Participation{}.Fields()
+	_ = participationFields
+	// participationDescGoals is the schema descriptor for goals field.
+	participationDescGoals := participationFields[0].Descriptor()
+	// participation.DefaultGoals holds the default value on creation for the goals field.
+	participation.DefaultGoals = participationDescGoals.Default.(int)
+	// participation.GoalsValidator is a validator for the "goals" field. It is called by the builders before save.
+	participation.GoalsValidator = participationDescGoals.Validators[0].(func(int) error)
+	team.Policy = privacy.NewPolicies(schema.Team{})
+	team.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := team.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
+	teamHooks := schema.Team{}.Hooks()
+
+	team.Hooks[1] = teamHooks[0]
 	teamFields := schema.Team{}.Fields()
 	_ = teamFields
 	// teamDescName is the schema descriptor for name field.

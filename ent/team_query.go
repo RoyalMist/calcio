@@ -5,7 +5,9 @@ package ent
 import (
 	"calcio/ent/predicate"
 	"calcio/ent/team"
+	"calcio/ent/user"
 	"context"
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"math"
@@ -25,6 +27,8 @@ type TeamQuery struct {
 	order      []OrderFunc
 	fields     []string
 	predicates []predicate.Team
+	// eager-loading edges.
+	withPlayers *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -59,6 +63,28 @@ func (tq *TeamQuery) Unique(unique bool) *TeamQuery {
 func (tq *TeamQuery) Order(o ...OrderFunc) *TeamQuery {
 	tq.order = append(tq.order, o...)
 	return tq
+}
+
+// QueryPlayers chains the current query on the "players" edge.
+func (tq *TeamQuery) QueryPlayers() *UserQuery {
+	query := &UserQuery{config: tq.config}
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := tq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := tq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(team.Table, team.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, team.PlayersTable, team.PlayersPrimaryKey...),
+		)
+		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Team entity from the query.
@@ -237,15 +263,27 @@ func (tq *TeamQuery) Clone() *TeamQuery {
 		return nil
 	}
 	return &TeamQuery{
-		config:     tq.config,
-		limit:      tq.limit,
-		offset:     tq.offset,
-		order:      append([]OrderFunc{}, tq.order...),
-		predicates: append([]predicate.Team{}, tq.predicates...),
+		config:      tq.config,
+		limit:       tq.limit,
+		offset:      tq.offset,
+		order:       append([]OrderFunc{}, tq.order...),
+		predicates:  append([]predicate.Team{}, tq.predicates...),
+		withPlayers: tq.withPlayers.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
 		path: tq.path,
 	}
+}
+
+// WithPlayers tells the query-builder to eager-load the nodes that are connected to
+// the "players" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TeamQuery) WithPlayers(opts ...func(*UserQuery)) *TeamQuery {
+	query := &UserQuery{config: tq.config}
+	for _, opt := range opts {
+		opt(query)
+	}
+	tq.withPlayers = query
+	return tq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -306,13 +344,22 @@ func (tq *TeamQuery) prepareQuery(ctx context.Context) error {
 		}
 		tq.sql = prev
 	}
+	if team.Policy == nil {
+		return errors.New("ent: uninitialized team.Policy (forgotten import ent/runtime?)")
+	}
+	if err := team.Policy.EvalQuery(ctx, tq); err != nil {
+		return err
+	}
 	return nil
 }
 
 func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 	var (
-		nodes = []*Team{}
-		_spec = tq.querySpec()
+		nodes       = []*Team{}
+		_spec       = tq.querySpec()
+		loadedTypes = [1]bool{
+			tq.withPlayers != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
 		node := &Team{config: tq.config}
@@ -324,6 +371,7 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 			return fmt.Errorf("ent: Assign called without calling ScanValues")
 		}
 		node := nodes[len(nodes)-1]
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	if err := sqlgraph.QueryNodes(ctx, tq.driver, _spec); err != nil {
@@ -332,6 +380,72 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+
+	if query := tq.withPlayers; query != nil {
+		fks := make([]driver.Value, 0, len(nodes))
+		ids := make(map[uuid.UUID]*Team, len(nodes))
+		for _, node := range nodes {
+			ids[node.ID] = node
+			fks = append(fks, node.ID)
+			node.Edges.Players = []*User{}
+		}
+		var (
+			edgeids []uuid.UUID
+			edges   = make(map[uuid.UUID][]*Team)
+		)
+		_spec := &sqlgraph.EdgeQuerySpec{
+			Edge: &sqlgraph.EdgeSpec{
+				Inverse: true,
+				Table:   team.PlayersTable,
+				Columns: team.PlayersPrimaryKey,
+			},
+			Predicate: func(s *sql.Selector) {
+				s.Where(sql.InValues(team.PlayersPrimaryKey[1], fks...))
+			},
+			ScanValues: func() [2]interface{} {
+				return [2]interface{}{new(uuid.UUID), new(uuid.UUID)}
+			},
+			Assign: func(out, in interface{}) error {
+				eout, ok := out.(*uuid.UUID)
+				if !ok || eout == nil {
+					return fmt.Errorf("unexpected id value for edge-out")
+				}
+				ein, ok := in.(*uuid.UUID)
+				if !ok || ein == nil {
+					return fmt.Errorf("unexpected id value for edge-in")
+				}
+				outValue := *eout
+				inValue := *ein
+				node, ok := ids[outValue]
+				if !ok {
+					return fmt.Errorf("unexpected node id in edges: %v", outValue)
+				}
+				if _, ok := edges[inValue]; !ok {
+					edgeids = append(edgeids, inValue)
+				}
+				edges[inValue] = append(edges[inValue], node)
+				return nil
+			},
+		}
+		if err := sqlgraph.QueryEdges(ctx, tq.driver, _spec); err != nil {
+			return nil, fmt.Errorf(`query edges "players": %w`, err)
+		}
+		query.Where(user.IDIn(edgeids...))
+		neighbors, err := query.All(ctx)
+		if err != nil {
+			return nil, err
+		}
+		for _, n := range neighbors {
+			nodes, ok := edges[n.ID]
+			if !ok {
+				return nil, fmt.Errorf(`unexpected "players" node returned %v`, n.ID)
+			}
+			for i := range nodes {
+				nodes[i].Edges.Players = append(nodes[i].Edges.Players, n)
+			}
+		}
+	}
+
 	return nodes, nil
 }
 

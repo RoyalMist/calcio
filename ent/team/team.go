@@ -3,6 +3,7 @@
 package team
 
 import (
+	"entgo.io/ent"
 	"github.com/google/uuid"
 )
 
@@ -13,8 +14,15 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// EdgePlayers holds the string denoting the players edge name in mutations.
+	EdgePlayers = "players"
 	// Table holds the table name of the team in the database.
 	Table = "teams"
+	// PlayersTable is the table that holds the players relation/edge. The primary key declared below.
+	PlayersTable = "user_teams"
+	// PlayersInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	PlayersInverseTable = "users"
 )
 
 // Columns holds all SQL columns for team fields.
@@ -22,6 +30,12 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 }
+
+var (
+	// PlayersPrimaryKey and PlayersColumn2 are the table columns denoting the
+	// primary key for the players relation (M2M).
+	PlayersPrimaryKey = []string{"user_id", "team_id"}
+)
 
 // ValidColumn reports if the column name is valid (part of the table columns).
 func ValidColumn(column string) bool {
@@ -33,7 +47,15 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "calcio/ent/runtime"
+//
 var (
+	Hooks  [2]ent.Hook
+	Policy ent.Policy
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// DefaultID holds the default value on creation for the "id" field.

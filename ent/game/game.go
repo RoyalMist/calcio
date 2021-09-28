@@ -2,18 +2,36 @@
 
 package game
 
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
 const (
 	// Label holds the string label denoting the game type in the database.
 	Label = "game"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldDate holds the string denoting the date field in the database.
+	FieldDate = "date"
+	// EdgeParticipations holds the string denoting the participations edge name in mutations.
+	EdgeParticipations = "participations"
 	// Table holds the table name of the game in the database.
 	Table = "games"
+	// ParticipationsTable is the table that holds the participations relation/edge.
+	ParticipationsTable = "participations"
+	// ParticipationsInverseTable is the table name for the Participation entity.
+	// It exists in this package in order to avoid circular dependency with the "participation" package.
+	ParticipationsInverseTable = "participations"
+	// ParticipationsColumn is the table column denoting the participations relation/edge.
+	ParticipationsColumn = "participation_game"
 )
 
 // Columns holds all SQL columns for game fields.
 var Columns = []string{
 	FieldID,
+	FieldDate,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -25,3 +43,10 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// DefaultDate holds the default value on creation for the "date" field.
+	DefaultDate func() time.Time
+	// DefaultID holds the default value on creation for the "id" field.
+	DefaultID func() uuid.UUID
+)

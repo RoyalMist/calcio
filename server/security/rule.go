@@ -10,7 +10,7 @@ import (
 func DenyIfNotLoggedIn() privacy.QueryMutationRule {
 	return privacy.ContextQueryMutationRule(func(ctx context.Context) error {
 		claims := FromContext(ctx)
-		if claims.UserId == "" {
+		if len(claims.UserId) < 36 {
 			return privacy.Denyf("user is missing from context")
 		}
 
