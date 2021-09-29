@@ -45,9 +45,9 @@ func (u Users) Start(base string, middlewares ...fiber.Handler) {
 // @Accept json
 // @Produce json
 // @Success 200 {array} ent.User "The list of users"
-// @Failure 400 {string} string "When the token is absent"
-// @Failure 401 {string} string "When the token is invalid"
-// @Failure 500 {string} string "When something went wrong"
+// @Failure 400 {string} string "Authentication token is absent"
+// @Failure 401 {string} string "Invalid authentication token"
+// @Failure 500 {string} string "Something went wrong"
 // @Param Authorization header string true "The authentication token"
 // @Router /api/users [get]
 func (u Users) all(ctx *fiber.Ctx) error {

@@ -50,10 +50,9 @@ type login struct {
 // @Accept json
 // @Produce json
 // @Success 200 {string} string "Paseto Token"
-// @Failure 400 {string} string "When the token is absent or malformed"
-// @Failure 401 {string} string "When the token is invalid"
-// @Failure 429 {string} string "When the rate limit is reached"
-// @Failure 500 {string} string "When something went wrong"
+// @Failure 400 {string} string "Wrong login information provided"
+// @Failure 429 {string} string "Rate limit reached"
+// @Failure 500 {string} string "Something went wrong"
 // @Param login body login true "Login json object"
 // @Router /api/auth/login [post]
 func (a Auth) login(ctx *fiber.Ctx) error {

@@ -51,25 +51,19 @@
             }
           },
           "400": {
-            "description": "When the token is absent or malformed",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "401": {
-            "description": "When the token is invalid",
+            "description": "Wrong login information provided",
             "schema": {
               "type": "string"
             }
           },
           "429": {
-            "description": "When the rate limit is reached",
+            "description": "Rate limit reached",
             "schema": {
               "type": "string"
             }
           },
           "500": {
-            "description": "When something went wrong",
+            "description": "Something went wrong",
             "schema": {
               "type": "string"
             }
@@ -110,19 +104,19 @@
             }
           },
           "400": {
-            "description": "When the token is absent",
+            "description": "Authentication token is absent",
             "schema": {
               "type": "string"
             }
           },
           "401": {
-            "description": "When the token is invalid",
+            "description": "Invalid authentication token",
             "schema": {
               "type": "string"
             }
           },
           "500": {
-            "description": "When something went wrong",
+            "description": "Something went wrong",
             "schema": {
               "type": "string"
             }
