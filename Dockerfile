@@ -5,7 +5,7 @@ ENV LC_ALL "en_US.UTF-8"
 RUN apk update && apk upgrade
 WORKDIR /
 COPY --chown=nobody:nobody calcio .
-RUN chmod +x calcio
 USER nobody:nobody
+RUN chmod +x calcio
 EXPOSE 4000
 ENTRYPOINT ["./calcio"]
