@@ -6,17 +6,52 @@ definitions:
       password:
         type: string
     type: object
-  ent.User:
+  ent.Team:
     properties:
-      admin:
-        description: Admin holds the value of the "admin" field.
-        type: boolean
+      edges:
+        $ref: '#/definitions/ent.TeamEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the TeamQuery when eager-loading is set.
       id:
         description: ID of the ent.
         type: string
       name:
         description: Name holds the value of the "name" field.
         type: string
+    type: object
+  ent.TeamEdges:
+    properties:
+      players:
+        description: Players holds the value of the players edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+    type: object
+  ent.User:
+    properties:
+      admin:
+        description: Admin holds the value of the "admin" field.
+        type: boolean
+      edges:
+        $ref: '#/definitions/ent.UserEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the UserQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+    type: object
+  ent.UserEdges:
+    properties:
+      teams:
+        description: Teams holds the value of the teams edge.
+        items:
+          $ref: '#/definitions/ent.Team'
+        type: array
     type: object
 info:
   contact:
@@ -106,4 +141,5 @@ paths:
         - players
 schemes:
   - http
+  - https
 swagger: "2.0"

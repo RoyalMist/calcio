@@ -155,12 +155,12 @@ var doc = `{
                 }
             }
         },
-        "ent.User": {
+        "ent.Team": {
             "type": "object",
             "properties": {
-                "admin": {
-                    "description": "Admin holds the value of the \"admin\" field.",
-                    "type": "boolean"
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the TeamQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.TeamEdges"
                 },
                 "id": {
                     "description": "ID of the ent.",
@@ -169,6 +169,51 @@ var doc = `{
                 "name": {
                     "description": "Name holds the value of the \"name\" field.",
                     "type": "string"
+                }
+            }
+        },
+        "ent.TeamEdges": {
+            "type": "object",
+            "properties": {
+                "players": {
+                    "description": "Players holds the value of the players edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.User"
+                    }
+                }
+            }
+        },
+        "ent.User": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "description": "Admin holds the value of the \"admin\" field.",
+                    "type": "boolean"
+                },
+                "edges": {
+                    "description": "Edges holds the relations/edges for other nodes in the graph.\nThe values are being populated by the UserQuery when eager-loading is set.",
+                    "$ref": "#/definitions/ent.UserEdges"
+                },
+                "id": {
+                    "description": "ID of the ent.",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "ent.UserEdges": {
+            "type": "object",
+            "properties": {
+                "teams": {
+                    "description": "Teams holds the value of the teams edge.",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ent.Team"
+                    }
                 }
             }
         }
@@ -189,7 +234,7 @@ var SwaggerInfo = swaggerInfo{
 	Version:     "1.0",
 	Host:        "",
 	BasePath:    "",
-	Schemes:     []string{"http"},
+	Schemes:     []string{"http", "https"},
 	Title:       "Calcio API",
 	Description: "Calcio, Table Football App.",
 }
