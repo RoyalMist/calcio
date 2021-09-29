@@ -21,10 +21,9 @@ export class AuthenticationService {
             path: `/api/auth/login`,
             body: login,
             errors: {
-                400: `When the token is absent or malformed`,
-                401: `When the token is invalid`,
-                429: `When the rate limit is reached`,
-                500: `When something went wrong`,
+                400: `Wrong login information provided`,
+                429: `Rate limit reached`,
+                500: `Something went wrong`,
             },
         });
         return result.body;

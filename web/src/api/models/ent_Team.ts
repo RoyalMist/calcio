@@ -2,18 +2,14 @@
 /* tslint:disable */
 /* eslint-disable */
 
-import type {ent_UserEdges} from './ent_UserEdges';
+import type {ent_TeamEdges} from './ent_TeamEdges';
 
-export type ent_User = {
-    /**
-     * Admin holds the value of the "admin" field.
-     */
-    admin?: boolean;
+export type ent_Team = {
     /**
      * Edges holds the relations/edges for other nodes in the graph.
-     * The values are being populated by the UserQuery when eager-loading is set.
+     * The values are being populated by the TeamQuery when eager-loading is set.
      */
-    edges?: ent_UserEdges;
+    edges?: ent_TeamEdges;
     /**
      * ID of the ent.
      */

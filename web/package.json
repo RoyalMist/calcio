@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "vite",
-    "gen:api": "openapi -i http://localhost:4000/swagger/doc.json -o src/api",
+    "gen:api": "openapi -i http://localhost:4000/doc/doc.json -o src/api",
     "build": "tsc && vite build",
     "serve": "vite preview"
   },

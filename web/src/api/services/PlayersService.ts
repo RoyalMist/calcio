@@ -23,9 +23,9 @@ export class PlayersService {
                 'Authorization': authorization,
             },
             errors: {
-                400: `When the token is absent`,
-                401: `When the token is invalid`,
-                500: `When something went wrong`,
+                400: `Authentication token is absent`,
+                401: `Invalid authentication token`,
+                500: `Something went wrong`,
             },
         });
         return result.body;
