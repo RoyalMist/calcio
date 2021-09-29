@@ -46,7 +46,7 @@ func CheckPassword(password, hash string) bool {
 func SignToken(claims Claims, validity time.Duration) (string, error) {
 	expiration := time.Now().Add(validity)
 	claims.Issuer = "calcio"
-	claims.KeyID = uuid.New().String()
+	claims.KeyID = uuid.NewString()
 	claims.Expiration = &expiration
 	return pvX.Sign(secretKey, claims, nil)
 }

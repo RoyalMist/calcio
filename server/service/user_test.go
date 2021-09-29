@@ -25,7 +25,7 @@ func TestUser_Login(t *testing.T) {
 	}(client)
 
 	fake := client.User.Create().SetName("fake").SetPassword("password").SaveX(security.NewContext(context.Background(), security.Claims{
-		UserId:  uuid.New().String(),
+		UserId:  uuid.NewString(),
 		IsAdmin: true,
 	}))
 
@@ -107,7 +107,7 @@ func TestUser_List(t *testing.T) {
 	}(client)
 
 	adminCtx := security.NewContext(context.Background(), security.Claims{
-		UserId:  uuid.New().String(),
+		UserId:  uuid.NewString(),
 		IsAdmin: true,
 	})
 
@@ -133,7 +133,7 @@ func TestUser_List(t *testing.T) {
 		{
 			name: "An authenticated user should be able to retrieve the list of users",
 			args: args{ctx: security.NewContext(context.Background(), security.Claims{
-				UserId:  uuid.New().String(),
+				UserId:  uuid.NewString(),
 				IsAdmin: false,
 			})},
 			want:    3,
@@ -201,7 +201,7 @@ func TestUser_Create(t *testing.T) {
 					Admin:    false,
 				},
 				ctx: security.NewContext(context.Background(), security.Claims{
-					UserId:  uuid.New().String(),
+					UserId:  uuid.NewString(),
 					IsAdmin: false,
 				}),
 			},
@@ -246,6 +246,101 @@ func TestUser_Create(t *testing.T) {
 				}
 				if got.Admin != tt.want.Admin {
 					t.Errorf("Create() got = %v, want %v", got, tt.want)
+				}
+			}
+		})
+	}
+}
+
+func TestUser_Update(t *testing.T) {
+	logger := (zaptest.NewLogger(t)).Sugar()
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	_ = client.Schema.Create(context.Background())
+	defer func(client *ent.Client) {
+		err := client.Close()
+		if err != nil {
+
+		}
+	}(client)
+
+	currentUser := client.User.Create().SetName("user").SetPassword("password").SetAdmin(false).SaveX(security.NewContext(context.Background(), security.Claims{
+		UserId:  uuid.NewString(),
+		IsAdmin: true,
+	}))
+
+	type args struct {
+		usr ent.User
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *ent.User
+		wantErr bool
+	}{
+		{
+			name: "an unauthenticated user should not be able to update a user",
+			args: args{
+				usr: ent.User{
+					ID:       currentUser.ID,
+					Name:     "name",
+					Password: "mypassword",
+					Admin:    false,
+				},
+				ctx: context.Background(),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "an authenticated user with no admin rights should not be able to update a user",
+			args: args{
+				usr: ent.User{
+					ID:       currentUser.ID,
+					Name:     "name",
+					Password: "mypassword",
+					Admin:    false,
+				},
+				ctx: security.NewContext(context.Background(), security.Claims{
+					UserId:  uuid.NewString(),
+					IsAdmin: false,
+				}),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "an authenticated user with admin rights should be able to update a user",
+			args: args{
+				usr: ent.User{
+					ID:       currentUser.ID,
+					Name:     "name",
+					Password: "mypassword",
+					Admin:    false,
+				},
+				ctx: security.NewContext(context.Background(), security.Claims{
+					UserId:  uuid.NewString(),
+					IsAdmin: true,
+				}),
+			},
+			want:    &ent.User{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := User{
+				log:    logger,
+				client: client,
+			}
+			got, err := u.Update(tt.args.usr, tt.args.ctx)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Update() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.want != nil {
+				if got == nil {
+					t.Errorf("we should get a user back here but got %p", got)
 				}
 			}
 		})

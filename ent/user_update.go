@@ -34,20 +34,6 @@ func (uu *UserUpdate) SetPassword(s string) *UserUpdate {
 	return uu
 }
 
-// SetAdmin sets the "admin" field.
-func (uu *UserUpdate) SetAdmin(b bool) *UserUpdate {
-	uu.mutation.SetAdmin(b)
-	return uu
-}
-
-// SetNillableAdmin sets the "admin" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableAdmin(b *bool) *UserUpdate {
-	if b != nil {
-		uu.SetAdmin(*b)
-	}
-	return uu
-}
-
 // AddTeamIDs adds the "teams" edge to the Team entity by IDs.
 func (uu *UserUpdate) AddTeamIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddTeamIDs(ids...)
@@ -184,13 +170,6 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: user.FieldPassword,
 		})
 	}
-	if value, ok := uu.mutation.Admin(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: user.FieldAdmin,
-		})
-	}
 	if uu.mutation.TeamsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
@@ -267,20 +246,6 @@ type UserUpdateOne struct {
 // SetPassword sets the "password" field.
 func (uuo *UserUpdateOne) SetPassword(s string) *UserUpdateOne {
 	uuo.mutation.SetPassword(s)
-	return uuo
-}
-
-// SetAdmin sets the "admin" field.
-func (uuo *UserUpdateOne) SetAdmin(b bool) *UserUpdateOne {
-	uuo.mutation.SetAdmin(b)
-	return uuo
-}
-
-// SetNillableAdmin sets the "admin" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableAdmin(b *bool) *UserUpdateOne {
-	if b != nil {
-		uuo.SetAdmin(*b)
-	}
 	return uuo
 }
 
@@ -442,13 +407,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Type:   field.TypeString,
 			Value:  value,
 			Column: user.FieldPassword,
-		})
-	}
-	if value, ok := uuo.mutation.Admin(); ok {
-		_spec.Fields.Set = append(_spec.Fields.Set, &sqlgraph.FieldSpec{
-			Type:   field.TypeBool,
-			Value:  value,
-			Column: user.FieldAdmin,
 		})
 	}
 	if uuo.mutation.TeamsCleared() {

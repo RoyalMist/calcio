@@ -83,7 +83,7 @@ func TestSignVerifyToken(t *testing.T) {
 			name: "a valid token should be issued and validated with one claim",
 			args: args{
 				claims: Claims{
-					UserId: uuid.New().String(),
+					UserId: uuid.NewString(),
 				},
 				validity: 20 * time.Minute,
 			},
@@ -95,7 +95,7 @@ func TestSignVerifyToken(t *testing.T) {
 			name: "a valid token should be issued and validated with multiple claims",
 			args: args{
 				claims: Claims{
-					UserId: uuid.New().String(),
+					UserId: uuid.NewString(),
 				},
 				validity: 20 * time.Minute,
 			},
@@ -107,7 +107,7 @@ func TestSignVerifyToken(t *testing.T) {
 			name: "an expired token should not be validated",
 			args: args{
 				claims: Claims{
-					UserId: uuid.New().String(),
+					UserId: uuid.NewString(),
 				},
 				validity: 20 * time.Millisecond,
 			},

@@ -27,7 +27,7 @@ func (User) Fields() []ent.Field {
 		field.UUID("id", uuid.UUID{}).Default(uuid.New).Immutable(),
 		field.String("name").NotEmpty().Unique().Immutable(),
 		field.String("password").NotEmpty().Sensitive(),
-		field.Bool("admin").Default(false),
+		field.Bool("admin").Default(false).Immutable(),
 	}
 }
 

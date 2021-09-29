@@ -30,7 +30,7 @@ func NewUser(logger *zap.SugaredLogger, client *ent.Client) *User {
 }
 
 func (u User) Login(name, password string) (*ent.User, error) {
-	dummyUserContext := security.NewContext(context.Background(), security.Claims{UserId: uuid.New().String()})
+	dummyUserContext := security.NewContext(context.Background(), security.Claims{UserId: uuid.NewString()})
 	retrievedUser, err := u.client.User.Query().Where(user.Name(name)).First(dummyUserContext)
 	if err != nil {
 		return nil, errors.Wrap(err, "user not found for login")
@@ -49,4 +49,17 @@ func (u User) List(ctx context.Context) ([]*ent.User, error) {
 
 func (u User) Create(usr ent.User, ctx context.Context) (*ent.User, error) {
 	return u.client.User.Create().SetName(usr.Name).SetPassword(usr.Password).SetAdmin(usr.Admin).Save(ctx)
+}
+
+func (u User) Update(usr ent.User, ctx context.Context) (*ent.User, error) {
+	current, err := u.client.User.Query().Where(user.ID(usr.ID)).First(ctx)
+	if err != nil {
+		return nil, errors.Wrapf(err, "impossible to retrieve a user with id: %v", usr.ID)
+	}
+
+	if usr.Password != "" {
+		return current.Update().SetPassword(usr.Password).Save(ctx)
+	} else {
+		return current, nil
+	}
 }
