@@ -63,12 +63,15 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     const {type, token} = action;
     switch (type) {
         case AuthActionKind.SET: {
+            localStorage.setItem("token", token === null ? token : "");
             return stateFromToken(token === undefined ? null : token);
         }
+
         case AuthActionKind.CLEAR: {
             localStorage.removeItem("token");
             return EMPTY;
         }
+
         default: {
             throw new Error(`Unknown action type: ${action.type}`);
         }
