@@ -46,3 +46,7 @@ func (u User) Login(name, password string) (*ent.User, error) {
 func (u User) List(ctx context.Context) ([]*ent.User, error) {
 	return u.client.User.Query().Order(ent.Asc(user.FieldName)).All(ctx)
 }
+
+func (u User) Create(usr ent.User, ctx context.Context) (*ent.User, error) {
+	return u.client.User.Create().SetName(usr.Name).SetPassword(usr.Password).SetAdmin(usr.Admin).Save(ctx)
+}
