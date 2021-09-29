@@ -8,4 +8,4 @@ COPY --chown=nobody:nobody calcio .
 USER nobody:nobody
 RUN chmod +x calcio
 EXPOSE 4000
-ENTRYPOINT ["./calcio"]
+CMD ["./calcio"]
