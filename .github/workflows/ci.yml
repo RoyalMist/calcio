@@ -134,8 +134,7 @@ jobs:
     name: Release
     if: ${{ contains(github.ref, 'refs/tags/') }}
     needs:
-      - analysis
-      - tests
+      - quality
       - nightly
     runs-on: ubuntu-20.04
     steps:
@@ -173,8 +172,7 @@ jobs:
     name: Distribution
     if: ${{ contains(github.ref, 'refs/tags/') }}
     needs:
-      - analysis
-      - tests
+      - quality
       - nightly
     runs-on: ubuntu-20.04
     strategy:
