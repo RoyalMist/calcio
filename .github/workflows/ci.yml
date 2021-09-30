@@ -17,8 +17,8 @@ env:
   DOCKER_IMAGE: royalmist/calcio
 
 jobs:
-  web:
-    name: Web Build
+  build:
+    name: Build
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
@@ -29,7 +29,11 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ env.NODE_VERSION }}
-      - name: Retrieve Cached Dependencies
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Retrieve NPM Cached Dependencies
         uses: actions/cache@v2
         id: node-modules-cache
         with:
@@ -38,9 +42,16 @@ jobs:
       - name: Install Dependencies
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm i --prefix ${{ env.WEB_DIR }}
-      - name: Build Web
-        run: npm run build --prefix ${{ env.WEB_DIR }}
-      - name: Tar Dist
+      - name: Retrieve GO Cached Dependencies
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
+      - name: Make
+        run: make build
+      - name: Tar Web Dist
         run: tar -cf dist.tar ${{ env.WEB_DIR }}/dist
       - name: Archive Dist
         uses: actions/upload-artifact@v2
@@ -48,38 +59,6 @@ jobs:
           name: web-dist
           path: dist.tar
           retention-days: 1
-
-  build:
-    name: Api Build
-    needs: web
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Download Web Dist
-        uses: actions/download-artifact@v2
-        with:
-          name: web-dist
-      - name: Untar Dist
-        run: |
-          rm -rf ${{ env.WEB_DIR }}
-          tar -xvf dist.tar
-          rm dist.tar
-      - name: Retrieve Cached Dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
-      - name: Build Api
-        run: go build
       - name: Archive Dist
         uses: actions/upload-artifact@v2
         with:
@@ -87,60 +66,12 @@ jobs:
           path: ${{ env.DIST }}
           retention-days: 1
 
-  analysis:
-    name: Static Code Analysis
-    needs: build
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Download Web Dist
-        uses: actions/download-artifact@v2
-        with:
-          name: web-dist
-      - name: Untar Dist
-        run: |
-          rm -rf ${{ env.WEB_DIR }}
-          tar -xvf dist.tar
-          rm dist.tar
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: ${{ env.GO_VERSION }}
-      - name: Retrieve Cached Dependencies
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
-      - name: Run Vet
-        run: go vet ./...
-      - name: Run Gosec Security Scanner
-        run: |
-          go get -u github.com/securego/gosec/v2/cmd/gosec
-          gosec -exclude-dir ent ./...
-
-  tests:
-    name: Unit Tests
+  quality:
+    name: Quality checks
     needs: build
     runs-on: ubuntu-20.04
     env:
       CGO_ENABLED: 1
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -151,10 +82,7 @@ jobs:
         with:
           name: web-dist
       - name: Untar Dist
-        run: |
-          rm -rf ${{ env.WEB_DIR }}
-          tar -xvf dist.tar
-          rm dist.tar
+        run: tar -xvf dist.tar
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -166,8 +94,8 @@ jobs:
             ~/go/pkg/mod
             ~/.cache/go-build
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
-      - name: Test
-        run: go test -v ./...
+      - name: Make
+        run: make quality
 
   nightly:
     name: Nightly

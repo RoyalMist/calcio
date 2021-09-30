@@ -1,20 +1,29 @@
-.PHONY : documentation entity build-front run-front build-back run-back
+.PHONY: documentation ent dev dev-front dev-back build run
 
 documentation:
+	go install github.com/swaggo/swag/cmd/swag@latest
 	go run github.com/swaggo/swag/cmd/swag@latest init
 	npm run gen:api --prefix web
 
-entity:
-	@echo "Model:"; read MOD; go run entgo.io/ent/cmd/ent init $$MOD
+ent:
+	go install entgo.io/ent/cmd/ent@latest
+	@echo "New ent model:"; read MOD; go run entgo.io/ent/cmd/ent@latest init $$MOD
 
-build-front: documentation
-	npm run build --prefix web
-
-run-front:
+dev-front:
 	npm run dev --prefix web
 
-build-back:
+dev-back:
+	go run .
+
+dev: documentation
+	make -j 2 dev-front dev-back
+
+build: documentation
+	npm run build --prefix web
 	go build .
 
-run-back:
-	go run .
+quality:
+	go vet ./...
+	go install github.com/securego/gosec/v2/cmd/gosec@latest
+	go run github.com/securego/gosec/v2/cmd/gosec@latest -exclude-dir ent ./...
+	go test -v ./...
