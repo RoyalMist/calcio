@@ -1,0 +1,141 @@
+definitions:
+  api.login:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  ent.Team:
+    properties:
+      edges:
+        $ref: '#/definitions/ent.TeamEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the TeamQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+    type: object
+  ent.TeamEdges:
+    properties:
+      players:
+        description: Players holds the value of the players edge.
+        items:
+          $ref: '#/definitions/ent.User'
+        type: array
+    type: object
+  ent.User:
+    properties:
+      admin:
+        description: Admin holds the value of the "admin" field.
+        type: boolean
+      edges:
+        $ref: '#/definitions/ent.UserEdges'
+        description: |-
+          Edges holds the relations/edges for other nodes in the graph.
+          The values are being populated by the UserQuery when eager-loading is set.
+      id:
+        description: ID of the ent.
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        type: string
+    type: object
+  ent.UserEdges:
+    properties:
+      teams:
+        description: Teams holds the value of the teams edge.
+        items:
+          $ref: '#/definitions/ent.Team'
+        type: array
+    type: object
+info:
+  contact:
+    email: royalmist@calcio.ch
+    name: Royal Mist
+    url: https://github.com/RoyalMist
+  description: Calcio, Table Football App.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Calcio API
+  version: "1.0"
+paths:
+  /api/auth/login:
+    post:
+      consumes:
+        - application/json
+      description: Log in and retrieve the PASETO token signed. This method is rate
+        limited.
+      parameters:
+        - description: Login json object
+          in: body
+          name: login
+          required: true
+          schema:
+            $ref: '#/definitions/api.login'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Paseto Token
+          schema:
+            type: string
+        "400":
+          description: Wrong login information provided
+          schema:
+            type: string
+        "429":
+          description: Rate limit reached
+          schema:
+            type: string
+        "500":
+          description: Something went wrong
+          schema:
+            type: string
+      summary: Permits a user to log in to Calcio if credentials are valid.
+      tags:
+        - authentication
+  /api/users:
+    get:
+      consumes:
+        - application/json
+      description: Retrieves all Calcio's users as a json list.
+      parameters:
+        - description: The authentication token
+          in: header
+          name: Authorization
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: The list of users
+          schema:
+            items:
+              $ref: '#/definitions/ent.User'
+            type: array
+        "400":
+          description: Authentication token is absent
+          schema:
+            type: string
+        "401":
+          description: Invalid authentication token
+          schema:
+            type: string
+        "500":
+          description: Something went wrong
+          schema:
+            type: string
+      summary: Fetch all Calcio's users.
+      tags:
+        - users
+schemes:
+  - http
+  - https
+swagger: "2.0"
