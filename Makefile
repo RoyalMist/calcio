@@ -1,4 +1,4 @@
-.PHONY: documentation ent dev dev-front dev-back build run
+.PHONY: documentation ent dev-front dev-back dev build quality
 
 documentation:
 	go install github.com/swaggo/swag/cmd/swag@latest
