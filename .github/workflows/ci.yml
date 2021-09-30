@@ -67,7 +67,7 @@ jobs:
           retention-days: 1
 
   quality:
-    name: Quality checks
+    name: Tests & Linting
     needs: build
     runs-on: ubuntu-20.04
     env:
