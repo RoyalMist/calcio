@@ -6,9 +6,8 @@ import (
 )
 
 const (
-	ApiHost  = "API_HOST"
-	DbDriver = "DB_DRIVER"
-	DbUrl    = "DB_URL"
+	ApiHost = "API_HOST"
+	DbUrl   = "DB_URL"
 )
 
 type Config struct {
@@ -35,13 +34,12 @@ var Module = fx.Provide(New)
 // New creates a new injectable.
 func New() *Config {
 	viper.SetDefault(ApiHost, ":4000")
-	viper.SetDefault(DbDriver, "postgres")
 	viper.SetDefault(DbUrl, "host=localhost port=5432 user=postgres dbname=calcio password=postgres sslmode=disable")
 	viper.AutomaticEnv()
 
 	return &Config{
 		apiHost:  viper.GetString(ApiHost),
-		dbDriver: viper.GetString(DbDriver),
+		dbDriver: "postgres",
 		dbUrl:    viper.GetString(DbUrl),
 	}
 }

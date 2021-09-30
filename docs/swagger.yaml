@@ -134,7 +134,7 @@ paths:
             type: string
       summary: Fetch all Calcio's users.
       tags:
-        - players
+        - users
 schemes:
   - http
   - https

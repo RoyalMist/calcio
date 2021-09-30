@@ -93,7 +93,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "players"
+                    "users"
                 ],
                 "summary": "Fetch all Calcio's users.",
                 "parameters": [

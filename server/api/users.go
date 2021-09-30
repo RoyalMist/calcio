@@ -41,7 +41,7 @@ func (u Users) Start(base string, middlewares ...fiber.Handler) {
 
 // @Summary Fetch all Calcio's users.
 // @Description Retrieves all Calcio's users as a json list.
-// @Tags players
+// @Tags users
 // @Accept json
 // @Produce json
 // @Success 200 {array} ent.User "The list of users"

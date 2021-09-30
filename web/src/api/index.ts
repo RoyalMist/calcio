@@ -11,4 +11,4 @@ export type {ent_User} from './models/ent_User';
 export type {ent_UserEdges} from './models/ent_UserEdges';
 
 export {AuthenticationService} from './services/AuthenticationService';
-export {PlayersService} from './services/PlayersService';
+export {UsersService} from './services/UsersService';
