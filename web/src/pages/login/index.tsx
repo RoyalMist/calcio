@@ -6,8 +6,8 @@ import {useMutation} from "react-query";
 import SimpleField from "../../components/simple-field";
 import landing from "../../../images/landing.webp";
 import logo from "../../../images/logo.webp";
-import {api_login, AuthenticationService} from "../../api";
 import {AuthActionKind, useAuth} from "../../stores/authentication";
+import {api_login, AuthenticationService} from "../../gen";
 
 function Login() {
     const initialValues: api_login = {name: "", password: ""};

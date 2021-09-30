@@ -1,9 +1,10 @@
 **/.idea/
 **/artifacts/
 **/dist/
-**/dist-ssr/
+**/docs/
 **/node_modules/
 **/.DS_Store/
-**/out/
+**/gen/
 *.local
 calcio
+calcio.exe
