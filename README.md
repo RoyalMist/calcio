@@ -41,7 +41,7 @@ Run `$ docker-compose up -d` and then go to http://localhost:4000
 ## Development
 
 A development server and the go api are launched by the following commands:  
-`npm i --prefix web`  
+`$ npm i --prefix web`  
 `$ make dev`  
 Then go to http://localhost:3000 to benefit hot code reload on frontend.  
 Api are available on http://localhost:4000.
