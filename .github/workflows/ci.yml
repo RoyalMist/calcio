@@ -10,11 +10,10 @@ on:
 
 env:
   GO_VERSION: 1.17
-  CGO_ENABLED: 0
   NODE_VERSION: 16.x
+  CGO_ENABLED: 0
   WEB_DIR: web
   DIST: calcio
-  DOCKER_IMAGE: royalmist/calcio
 
 jobs:
   build:
@@ -126,7 +125,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+          tags: ${{ secrets.DOCKER_USER }}/${{ env.DIST }}:latest
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
@@ -164,7 +163,7 @@ jobs:
           file: ./Dockerfile
           builder: ${{ steps.buildx.outputs.name }}
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:${{ steps.tagName.outputs.tag }}
+          tags: ${{ secrets.DOCKER_USER }}/${{ env.DIST }}:${{ steps.tagName.outputs.tag }}
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
