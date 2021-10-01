@@ -94,6 +94,8 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
+            $GOPATH/bin
+            $GOPATH/pkg
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Make
         run: make quality
@@ -210,6 +212,8 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
+            $GOPATH/bin
+            $GOPATH/pkg
           key: ${{ runner.os }}-${{ env.GO_VERSION }}-${{ hashFiles('**/go.sum') }}
       - name: Build Api
         run: go build
