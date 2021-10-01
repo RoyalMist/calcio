@@ -15,6 +15,7 @@ interface AuthAction {
 interface Paseto {
     exp: string;
     user_id: string;
+    user_name: string,
     is_admin: boolean;
 }
 
@@ -29,13 +30,14 @@ interface AuthProps {
 
 interface AuthContext {
     token: string;
+    paseto: Paseto | null;
     isLoggedIn: () => boolean;
     isAdmin: () => boolean;
     dispatcher: React.Dispatch<AuthAction>
 }
 
 const EMPTY: AuthState = {token: null, paseto: null}
-const AuthContext = React.createContext<AuthContext>({token: "", isLoggedIn: () => false, isAdmin: () => false, dispatcher: () => EMPTY});
+const AuthContext = React.createContext<AuthContext>({token: "", paseto: null, isLoggedIn: () => false, isAdmin: () => false, dispatcher: () => EMPTY});
 const stateFromToken = (token: string | null): AuthState => {
     if (!token) {
         localStorage.removeItem("token");
@@ -85,7 +87,7 @@ function AuthProvider({children}: AuthProps) {
     const [state, dispatch] = useReducer(authReducer, stateFromToken(storedToken));
     const isAdmin = () => !!stateFromToken(state.token).paseto?.is_admin;
     const isLoggedIn = () => !!stateFromToken(state.token).paseto;
-    const value: AuthContext = {token: `Bearer ${state.token}`, dispatcher: dispatch, isAdmin, isLoggedIn};
+    const value: AuthContext = {token: `Bearer ${state.token}`, paseto: state.paseto, dispatcher: dispatch, isAdmin, isLoggedIn};
     return (
         <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
     );

@@ -9,8 +9,9 @@ import (
 
 type Claims struct {
 	pvx.RegisteredClaims
-	UserId  string `json:"user_id"`
-	IsAdmin bool   `json:"is_admin"`
+	UserId   string `json:"user_id"`
+	UserName string `json:"user_name"`
+	IsAdmin  bool   `json:"is_admin"`
 }
 
 func (c Claims) Valid() error {
@@ -18,7 +19,7 @@ func (c Claims) Valid() error {
 		return err
 	}
 
-	if len(c.UserId) < 1 {
+	if len(c.UserId) < 36 {
 		return fmt.Errorf("invalid userId %s", c.UserId)
 	}
 

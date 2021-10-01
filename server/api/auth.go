@@ -67,8 +67,9 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 	}
 
 	token, err := security.SignToken(security.Claims{
-		UserId:  u.ID.String(),
-		IsAdmin: u.Admin,
+		UserId:   u.ID.String(),
+		UserName: u.Name,
+		IsAdmin:  u.Admin,
 	}, 30*time.Minute)
 	if err != nil {
 		return fiber.ErrInternalServerError

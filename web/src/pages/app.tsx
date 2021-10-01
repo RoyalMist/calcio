@@ -1,6 +1,6 @@
 import {Menu, Popover, Transition} from "@headlessui/react";
 import {MenuIcon, XIcon} from "@heroicons/react/outline";
-import {ChartBarIcon, FireIcon, SearchIcon, UserGroupIcon, UserIcon} from "@heroicons/react/solid";
+import {ChartBarIcon, FireIcon, UserGroupIcon, UserIcon} from "@heroicons/react/solid";
 import React, {Fragment} from "react";
 import {Link, Switch, useLocation} from "react-router-dom";
 import LoggedInRoute from "../components/route/logged_in";
@@ -11,21 +11,14 @@ import Dashboards from "./dashboards";
 import Home from "./home";
 import Logout from "./logout";
 import Users from "./users";
-import avatar from "../../images/avatar.webp";
 import logo from "../../images/logo.webp";
 import {useAuth} from "../stores/authentication";
 import Games from "./games";
 import Teams from "./teams";
 
-const user = {
-    name: "Thibault Fouache",
-    email: "thibault@Calcio.ch",
-    imageUrl: avatar,
-};
-
 function App() {
     const path = useLocation().pathname;
-    const {isAdmin} = useAuth();
+    const {isAdmin, paseto} = useAuth();
     const ACCOUNT_NAVIGATION = [
         {name: "Sign out", to: LOGOUT},
     ];
@@ -74,7 +67,7 @@ function App() {
             >
                 {({open}) => (
                     <>
-                        <div className="px-4 mx-auto sm:px-6 lg:px-8">
+                        <div className="px-4 mx-auto sm:px-6 lg:px-8 bg-blue-800">
                             <div className="relative flex justify-between xl:grid xl:grid-cols-12 lg:gap-8">
                                 <div className="flex md:absolute md:left-0 md:inset-y-0 lg:static xl:col-span-2">
                                     <div className="flex items-center flex-shrink-0">
@@ -87,24 +80,7 @@ function App() {
                                         </Link>
                                     </div>
                                 </div>
-                                <div className="flex-1 min-w-0 col-span-6 md:px-8 lg:px-0">
-                                    <div className="flex items-center px-6 py-4 md:max-w-lg md:mx-auto lg:max-w-4xl lg:mx-0 xl:px-0">
-                                        <div className="w-full">
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                                    <SearchIcon className="w-5 h-5 text-gray-400"/>
-                                                </div>
-                                                <input
-                                                    id="search"
-                                                    name="search"
-                                                    className="block w-full py-2 pl-10 pr-3 text-sm placeholder-gray-500 bg-white border border-gray-300 rounded-md focus:outline-none focus:text-gray-900 focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-800 focus:border-blue-800 sm:text-sm"
-                                                    placeholder="Search"
-                                                    type="search"
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <div className="flex-1 min-w-0 col-span-6 md:px-8 lg:px-0 h-16"/>
                                 <div className="flex items-center md:absolute md:right-0 md:inset-y-0 lg:hidden">
                                     <Popover.Button
                                         className="inline-flex items-center justify-center p-2 -mx-2 text-gray-400 rounded-md hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500">
@@ -121,11 +97,11 @@ function App() {
                                             <>
                                                 <div>
                                                     <Menu.Button className="flex bg-white rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                                        <img
-                                                            className="w-8 h-8 rounded-full"
-                                                            src={user.imageUrl}
-                                                            alt=""
-                                                        />
+                                                        <span className="inline-block h-10 w-10 rounded-full overflow-hidden bg-gray-100">
+                                                            <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                                            </svg>
+                                                        </span>
                                                     </Menu.Button>
                                                 </div>
                                                 <Transition
@@ -188,18 +164,15 @@ function App() {
                             <div className="pt-4 pb-3 border-t border-gray-200">
                                 <div className="flex items-center max-w-3xl px-4 mx-auto sm:px-6">
                                     <div className="flex-shrink-0">
-                                        <img
-                                            className="w-10 h-10 rounded-full"
-                                            src={user.imageUrl}
-                                            alt=""
-                                        />
+                                        <span className="inline-block h-10 w-10 rounded-full overflow-hidden bg-gray-100">
+                                            <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                            </svg>
+                                        </span>
                                     </div>
                                     <div className="ml-3">
                                         <div className="text-base font-medium text-gray-800">
-                                            {user.name}
-                                        </div>
-                                        <div className="text-sm font-medium text-gray-500">
-                                            {user.email}
+                                            {paseto?.user_name}
                                         </div>
                                     </div>
                                 </div>
