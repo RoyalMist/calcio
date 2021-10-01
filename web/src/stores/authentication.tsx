@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useReducer} from "react";
-import {Base64} from "js-base64";
+import {parse, Paseto} from "../utils/paseto";
 
 enum AuthActionKind {
     SET,
@@ -10,13 +10,6 @@ enum AuthActionKind {
 interface AuthAction {
     type: AuthActionKind;
     token?: string;
-}
-
-interface Paseto {
-    exp: string;
-    user_id: string;
-    user_name: string,
-    is_admin: boolean;
 }
 
 interface AuthState {
@@ -39,30 +32,14 @@ interface AuthContext {
 const EMPTY: AuthState = {token: null, paseto: null}
 const AuthContext = React.createContext<AuthContext>({token: "", paseto: null, isLoggedIn: () => false, isAdmin: () => false, dispatcher: () => EMPTY});
 const stateFromToken = (token: string | null): AuthState => {
-    if (!token) {
-        localStorage.removeItem("token");
-        return EMPTY;
-    }
-
-    let paseto: Paseto;
-    try {
-        const decoded = Base64.decode(token);
-        paseto = JSON.parse(decoded.substring(decoded.indexOf("{"), decoded.indexOf("}") + 1));
-    } catch (err) {
-        console.error(err);
-        localStorage.removeItem("token");
-        return EMPTY;
-    }
-
-    const isValid = Date.parse(paseto.exp) > Date.now();
-    if (!isValid) {
-        localStorage.removeItem("token");
-        return EMPTY;
-    } else {
+    const paseto = parse(token);
+    if (token != null && paseto != null && Date.parse(paseto.exp) > Date.now()) {
         localStorage.setItem("token", token);
+        return {token, paseto};
+    } else {
+        localStorage.removeItem("token");
+        return EMPTY;
     }
-
-    return {token, paseto};
 }
 
 const authReducer = (state: AuthState, action: AuthAction): AuthState => {
