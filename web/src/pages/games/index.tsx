@@ -1,8 +1,12 @@
 import React from "react";
+import {toast} from "react-hot-toast";
+import SectionHeader from "../../components/section-header";
 
 const Games = () => {
     return (
-        <div>Games</div>
+        <>
+            <SectionHeader action={() => toast.success("Hello")}>Games</SectionHeader>
+        </>
     );
 };
 

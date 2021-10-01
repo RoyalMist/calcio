@@ -1,6 +1,6 @@
 import {Menu, Popover, Transition} from "@headlessui/react";
 import {MenuIcon, XIcon} from "@heroicons/react/outline";
-import {ChartBarIcon, FireIcon, SearchIcon, UserGroupIcon, UsersIcon} from "@heroicons/react/solid";
+import {ChartBarIcon, FireIcon, SearchIcon, UserGroupIcon, UserIcon} from "@heroicons/react/solid";
 import React, {Fragment} from "react";
 import {Link, Switch, useLocation} from "react-router-dom";
 import LoggedInRoute from "../components/route/logged_in";
@@ -56,7 +56,7 @@ function App() {
             name: "Users",
             to: USERS,
             accessible: isAdmin(),
-            icon: UsersIcon,
+            icon: UserIcon,
             current: path.startsWith(USERS),
         },
     ];
