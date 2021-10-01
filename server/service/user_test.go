@@ -10,6 +10,7 @@ import (
 	"calcio/server/security"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -342,6 +343,42 @@ func TestUser_Update(t *testing.T) {
 				if got == nil {
 					t.Errorf("we should get a user back here but got %p", got)
 				}
+			}
+		})
+	}
+}
+
+func TestUser_Delete(t *testing.T) {
+	type fields struct {
+		log    *zap.SugaredLogger
+		client *ent.Client
+	}
+	type args struct {
+		id  string
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    int
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := User{
+				log:    tt.fields.log,
+				client: tt.fields.client,
+			}
+			got, err := u.Delete(tt.args.id, tt.args.ctx)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Delete() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Delete() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -34,8 +34,8 @@ func (u Users) Start(base string, middlewares ...fiber.Handler) {
 	}
 
 	router.Get("", u.all)
-	router.Post("/create", u.create)
-	router.Put("create", u.update)
+	router.Post("", u.create)
+	router.Put("", u.update)
 	router.Delete("/:id", u.delete)
 }
 
@@ -60,14 +60,47 @@ func (u Users) all(ctx *fiber.Ctx) error {
 	return ctx.JSON(users)
 }
 
+// @Summary Create a new user.
+// @Description Permits an administrator to create other users.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} ent.User "The newly created user"
+// @Failure 400 {string} string "Wrong input"
+// @Failure 401 {string} string "Forbidden"
+// @Failure 500 {string} string "Something went wrong"
+// @Param user body ent.User true "The user to create"
+// @Router /api/users/create [post]
 func (u Users) create(ctx *fiber.Ctx) error {
 	return ctx.SendString("")
 }
 
+// @Summary Update an existing user.
+// @Description Permits an administrator to update a user.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {object} ent.User "The updated user"
+// @Failure 400 {string} string "Wrong input"
+// @Failure 401 {string} string "Forbidden"
+// @Failure 500 {string} string "Something went wrong"
+// @Param user body ent.User true "The user to update"
+// @Router /api/users [put]
 func (u Users) update(ctx *fiber.Ctx) error {
 	return ctx.SendString("")
 }
 
+// @Summary Delete an existing user.
+// @Description Permits an admin to delete a user.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "The success of the operation"
+// @Failure 400 {string} string "Wrong input"
+// @Failure 401 {string} string "Forbidden"
+// @Failure 500 {string} string "Something went wrong"
+// @Param id path string true "The id of the user to delete"
+// @Router /api/users [delete]
 func (u Users) delete(ctx *fiber.Ctx) error {
 	return ctx.SendString("")
 }

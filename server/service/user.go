@@ -63,3 +63,12 @@ func (u User) Update(usr ent.User, ctx context.Context) (*ent.User, error) {
 		return current, nil
 	}
 }
+
+func (u User) Delete(id string, ctx context.Context) (int, error) {
+	uId, err := uuid.FromBytes([]byte(id))
+	if err != nil {
+		return 0, errors.Wrapf(err, "impossible to get uuid from %s", id)
+	}
+
+	return u.client.User.Delete().Where(user.ID(uId)).Exec(ctx)
+}

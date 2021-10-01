@@ -134,6 +134,156 @@ var doc = `{
                         }
                     }
                 }
+            },
+            "put": {
+                "description": "Permits an administrator to update a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Update an existing user.",
+                "parameters": [
+                    {
+                        "description": "The user to update",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The updated user",
+                        "schema": {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Wrong input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Permits an admin to delete a user.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Delete an existing user.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The id of the user to delete",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The success of the operation",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Wrong input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/create": {
+            "post": {
+                "description": "Permits an administrator to create other users.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Create a new user.",
+                "parameters": [
+                    {
+                        "description": "The user to create",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The newly created user",
+                        "schema": {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Wrong input",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         }
     },
