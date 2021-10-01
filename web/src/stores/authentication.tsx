@@ -28,16 +28,17 @@ interface AuthProps {
 }
 
 interface AuthContext {
-    token: string | null;
+    token: string;
     isLoggedIn: () => boolean;
     isAdmin: () => boolean;
     dispatcher: React.Dispatch<AuthAction>
 }
 
 const EMPTY: AuthState = {token: null, paseto: null}
-const AuthContext = React.createContext<AuthContext>({token: null, isLoggedIn: () => false, isAdmin: () => false, dispatcher: () => EMPTY});
+const AuthContext = React.createContext<AuthContext>({token: "", isLoggedIn: () => false, isAdmin: () => false, dispatcher: () => EMPTY});
 const stateFromToken = (token: string | null): AuthState => {
     if (!token) {
+        localStorage.removeItem("token");
         return EMPTY;
     }
 
@@ -47,6 +48,7 @@ const stateFromToken = (token: string | null): AuthState => {
         paseto = JSON.parse(decoded.substring(decoded.indexOf("{"), decoded.indexOf("}") + 1));
     } catch (err) {
         console.error(err);
+        localStorage.removeItem("token");
         return EMPTY;
     }
 
@@ -54,6 +56,8 @@ const stateFromToken = (token: string | null): AuthState => {
     if (!isValid) {
         localStorage.removeItem("token");
         return EMPTY;
+    } else {
+        localStorage.setItem("token", token);
     }
 
     return {token, paseto};
@@ -63,13 +67,11 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
     const {type, token} = action;
     switch (type) {
         case AuthActionKind.SET: {
-            localStorage.setItem("token", token === null ? token : "");
             return stateFromToken(token === undefined ? null : token);
         }
 
         case AuthActionKind.CLEAR: {
-            localStorage.removeItem("token");
-            return EMPTY;
+            return stateFromToken(null);
         }
 
         default: {
@@ -83,7 +85,7 @@ function AuthProvider({children}: AuthProps) {
     const [state, dispatch] = useReducer(authReducer, stateFromToken(storedToken));
     const isAdmin = () => !!stateFromToken(state.token).paseto?.is_admin;
     const isLoggedIn = () => !!stateFromToken(state.token).paseto;
-    const value: AuthContext = {token: state.token, dispatcher: dispatch, isAdmin, isLoggedIn};
+    const value: AuthContext = {token: `Bearer ${state.token}`, dispatcher: dispatch, isAdmin, isLoggedIn};
     return (
         <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
     );

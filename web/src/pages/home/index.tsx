@@ -1,6 +1,6 @@
 import React from "react";
 import {Redirect} from "react-router-dom";
-import {DASHBOARDS, PROFILE} from "../../routes";
+import {DASHBOARDS, GAMES} from "../../routes";
 import {useAuth} from "../../stores/authentication";
 
 function Home() {
@@ -8,7 +8,7 @@ function Home() {
     if (isAdmin()) {
         return <Redirect to={DASHBOARDS}/>;
     } else {
-        return <Redirect to={PROFILE}/>;
+        return <Redirect to={GAMES}/>;
     }
 }
 

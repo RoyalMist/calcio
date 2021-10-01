@@ -4,17 +4,17 @@ import {ChartBarIcon, SearchIcon, UsersIcon} from "@heroicons/react/solid";
 import React, {Fragment} from "react";
 import {Link, Switch, useLocation} from "react-router-dom";
 import LoggedInRoute from "../components/route/logged_in";
-import {DASHBOARDS, HOME, LOGOUT, PLAYERS, PROFILE} from "../routes";
+import {DASHBOARDS, GAMES, HOME, LOGOUT, USERS} from "../routes";
 import {classNames} from "../utils/classes";
 import {DefaultRedirect} from "./404";
 import Dashboards from "./dashboards";
 import Home from "./home";
 import Logout from "./logout";
-import Profile from "./profile";
-import Players from "./users";
+import Users from "./users";
 import avatar from "../../images/avatar.webp";
 import logo from "../../images/logo.webp";
 import {useAuth} from "../stores/authentication";
+import Games from "./games";
 
 const user = {
     name: "Thibault Fouache",
@@ -26,7 +26,6 @@ function App() {
     const path = useLocation().pathname;
     const {isAdmin} = useAuth();
     const ACCOUNT_NAVIGATION = [
-        {name: "Your Profile", to: PROFILE},
         {name: "Sign out", to: LOGOUT},
     ];
 
@@ -34,16 +33,16 @@ function App() {
         {
             name: "Dashboard",
             to: DASHBOARDS,
-            restricted: isAdmin(),
+            accessible: true,
             icon: ChartBarIcon,
             current: path.startsWith(DASHBOARDS),
         },
         {
-            name: "Players",
-            to: PLAYERS,
-            restricted: isAdmin(),
+            name: "Users",
+            to: USERS,
+            accessible: isAdmin(),
             icon: UsersIcon,
-            current: path.startsWith(PLAYERS),
+            current: path.startsWith(USERS),
         },
     ];
 
@@ -156,7 +155,7 @@ function App() {
 
                         <Popover.Panel as="nav" className="lg:hidden">
                             <div className="max-w-3xl px-2 pt-2 pb-3 mx-auto space-y-1 sm:px-4">
-                                {MAIN_NAVIGATION.filter(n => n.restricted).map((item) => (
+                                {MAIN_NAVIGATION.filter(n => n.accessible).map((item) => (
                                     <Link
                                         key={item.name}
                                         to={item.to}
@@ -211,7 +210,7 @@ function App() {
                     <div className="hidden lg:block lg:col-span-3 xl:col-span-2">
                         <nav className="sticky divide-y divide-gray-300 top-4">
                             <div className="pb-8 space-y-1">
-                                {MAIN_NAVIGATION.filter(n => n.restricted).map((item) => (
+                                {MAIN_NAVIGATION.filter(n => n.accessible).map((item) => (
                                     <Link
                                         key={item.name}
                                         to={item.to}
@@ -243,17 +242,17 @@ function App() {
                                     <LoggedInRoute exact path={HOME}>
                                         <Home/>
                                     </LoggedInRoute>
-                                    <LoggedInRoute path={PROFILE}>
-                                        <Profile/>
+                                    <LoggedInRoute path={GAMES}>
+                                        <Games/>
                                     </LoggedInRoute>
                                     <LoggedInRoute path={LOGOUT}>
                                         <Logout/>
                                     </LoggedInRoute>
-                                    <LoggedInRoute path={DASHBOARDS} mustBeAdmin={true}>
+                                    <LoggedInRoute path={DASHBOARDS}>
                                         <Dashboards/>
                                     </LoggedInRoute>
-                                    <LoggedInRoute path={PLAYERS} mustBeAdmin={true}>
-                                        <Players/>
+                                    <LoggedInRoute path={USERS} mustBeAdmin={true}>
+                                        <Users/>
                                     </LoggedInRoute>
                                     <DefaultRedirect/>
                                 </Switch>

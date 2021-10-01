@@ -3,20 +3,11 @@ import {MailIcon} from '@heroicons/react/solid'
 import Spinner from "../../components/spinner";
 import SectionHeader from "../../components/section-header";
 import {toast} from "react-hot-toast";
+import {ent_User} from "../../gen";
 
-interface PlayerProps {
-}
-
-interface Player {
-    name: string;
-    isAdmin: boolean;
-    mail: string;
-    avatarUrl: string;
-}
-
-function Players(props: PlayerProps) {
+function Users() {
     const isLoading = false;
-    const data: Player[] = [];
+    const data: ent_User[] = [];
 
     if (isLoading) {
         return <Spinner loading={isLoading}/>
@@ -25,16 +16,18 @@ function Players(props: PlayerProps) {
             <>
                 <SectionHeader action={() => toast.success("Hello")}>Users</SectionHeader>
                 <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    {data.map((player: Player) => (
+                    {data.map((player: ent_User) => (
                         <li
-                            key={player.mail}
+                            key={player.id}
                             className="col-span-1 flex flex-col text-center bg-white rounded-lg shadow divide-y divide-gray-200"
                         >
                             <div className="flex-1 flex flex-col p-8">
-                                <img className="w-32 h-32 flex-shrink-0 mx-auto rounded-full" src={player.avatarUrl} alt=""/>
+                                <span className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-gray-500">
+                                    <span className="text-xl font-medium leading-none text-white">TW</span>
+                                </span>
                                 <h3 className="mt-6 text-gray-900 text-sm font-medium">{player.name}</h3>
                                 <dt className="sr-only">Role</dt>
-                                {player.isAdmin && (<dd className="mt-3">
+                                {player.admin && (<dd className="mt-3">
                                 <span className="px-2 py-1 text-green-800 text-xs font-medium bg-green-100 rounded-full">
                                     Admin
                                 </span>
@@ -44,7 +37,7 @@ function Players(props: PlayerProps) {
                                 <div className="-mt-px flex divide-x divide-gray-200">
                                     <div className="w-0 flex-1 flex">
                                         <a
-                                            href={`mailto:${player.mail}`}
+                                            href={`mailto:${player.name}`}
                                             className="group relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-b-lg hover:text-white hover:bg-blue-800"
                                         >
                                             <MailIcon className="w-5 h-5 text-gray-400 group-hover:text-white" aria-hidden="true"/>
@@ -61,4 +54,4 @@ function Players(props: PlayerProps) {
     }
 }
 
-export default Players;
+export default Users;
