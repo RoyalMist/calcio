@@ -65,7 +65,7 @@ func (u User) Update(usr ent.User, ctx context.Context) (*ent.User, error) {
 }
 
 func (u User) Delete(id string, ctx context.Context) (int, error) {
-	uId, err := uuid.FromBytes([]byte(id))
+	uId, err := uuid.Parse(id)
 	if err != nil {
 		return 0, errors.Wrapf(err, "impossible to get uuid from %s", id)
 	}

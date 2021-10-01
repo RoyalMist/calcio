@@ -10,7 +10,6 @@ import (
 	"calcio/server/security"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
-	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest"
 )
 
@@ -349,28 +348,80 @@ func TestUser_Update(t *testing.T) {
 }
 
 func TestUser_Delete(t *testing.T) {
-	type fields struct {
-		log    *zap.SugaredLogger
-		client *ent.Client
-	}
+	logger := (zaptest.NewLogger(t)).Sugar()
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	_ = client.Schema.Create(context.Background())
+	defer func(client *ent.Client) {
+		err := client.Close()
+		if err != nil {
+
+		}
+	}(client)
+
+	adminCtx := security.NewContext(context.Background(), security.Claims{
+		UserId:   uuid.NewString(),
+		UserName: "admin",
+		IsAdmin:  true,
+	})
+
+	userInDb := client.User.Create().SetName("user").SetPassword("password").SaveX(adminCtx)
+
 	type args struct {
 		id  string
 		ctx context.Context
 	}
 	tests := []struct {
 		name    string
-		fields  fields
 		args    args
 		want    int
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "an unauthenticated user should not be able to delete a user",
+			args: args{
+				id:  userInDb.ID.String(),
+				ctx: context.Background(),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "an authenticated user with no admin rights should not be able to delete a user",
+			args: args{
+				id: userInDb.ID.String(),
+				ctx: security.NewContext(context.Background(), security.Claims{
+					UserId:   uuid.NewString(),
+					UserName: "non-admin",
+					IsAdmin:  false,
+				}),
+			},
+			want:    0,
+			wantErr: true,
+		},
+		{
+			name: "an admin should not be able to delete a user if it does not exist",
+			args: args{
+				id:  uuid.NewString(),
+				ctx: adminCtx,
+			},
+			want:    0,
+			wantErr: false,
+		},
+		{
+			name: "an admin should be able to delete a user if it exists",
+			args: args{
+				id:  userInDb.ID.String(),
+				ctx: adminCtx,
+			},
+			want:    1,
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			u := User{
-				log:    tt.fields.log,
-				client: tt.fields.client,
+				log:    logger,
+				client: client,
 			}
 			got, err := u.Delete(tt.args.id, tt.args.ctx)
 			if (err != nil) != tt.wantErr {

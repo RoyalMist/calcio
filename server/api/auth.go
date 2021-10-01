@@ -56,20 +56,20 @@ type login struct {
 // @Param login body login true "Login json object"
 // @Router /api/auth/login [post]
 func (a Auth) login(ctx *fiber.Ctx) error {
-	l := new(login)
-	if err := ctx.BodyParser(l); err != nil {
+	body := new(login)
+	if err := ctx.BodyParser(body); err != nil {
 		return fiber.ErrBadRequest
 	}
 
-	u, err := a.uService.Login(l.Name, l.Password)
+	usr, err := a.uService.Login(body.Name, body.Password)
 	if err != nil {
 		return fiber.ErrBadRequest
 	}
 
 	token, err := security.SignToken(security.Claims{
-		UserId:   u.ID.String(),
-		UserName: u.Name,
-		IsAdmin:  u.Admin,
+		UserId:   usr.ID.String(),
+		UserName: usr.Name,
+		IsAdmin:  usr.Admin,
 	}, 30*time.Minute)
 	if err != nil {
 		return fiber.ErrInternalServerError

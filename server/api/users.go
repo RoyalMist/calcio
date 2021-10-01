@@ -1,11 +1,17 @@
 package api
 
 import (
+	"calcio/ent"
 	"calcio/server/service"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 )
+
+type user struct {
+	ent.User
+	Password string `json:"password"`
+}
 
 type Users struct {
 	app         *fiber.App
@@ -69,10 +75,26 @@ func (u Users) all(ctx *fiber.Ctx) error {
 // @Failure 400 {string} string "Wrong input"
 // @Failure 401 {string} string "Forbidden"
 // @Failure 500 {string} string "Something went wrong"
-// @Param user body ent.User true "The user to create"
-// @Router /api/users/create [post]
+// @Param Authorization header string true "The authentication token"
+// @Param user body user true "The user to create"
+// @Router /api/users [post]
 func (u Users) create(ctx *fiber.Ctx) error {
-	return ctx.SendString("")
+	body := new(user)
+	if err := ctx.BodyParser(body); err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	usr, err := u.userService.Create(ent.User{
+		Name:     body.Name,
+		Password: body.Password,
+		Admin:    body.Admin,
+	}, ctx.UserContext())
+	if err != nil {
+		u.log.Error(err)
+		return fiber.ErrInternalServerError
+	}
+
+	return ctx.JSON(usr)
 }
 
 // @Summary Update an existing user.
@@ -84,10 +106,27 @@ func (u Users) create(ctx *fiber.Ctx) error {
 // @Failure 400 {string} string "Wrong input"
 // @Failure 401 {string} string "Forbidden"
 // @Failure 500 {string} string "Something went wrong"
-// @Param user body ent.User true "The user to update"
+// @Param Authorization header string true "The authentication token"
+// @Param user body user true "The user to update"
 // @Router /api/users [put]
 func (u Users) update(ctx *fiber.Ctx) error {
-	return ctx.SendString("")
+	body := new(user)
+	if err := ctx.BodyParser(body); err != nil {
+		return fiber.ErrBadRequest
+	}
+
+	usr, err := u.userService.Update(ent.User{
+		ID:       body.ID,
+		Name:     body.Name,
+		Password: body.Password,
+		Admin:    body.Admin,
+	}, ctx.UserContext())
+	if err != nil {
+		u.log.Error(err)
+		return fiber.ErrInternalServerError
+	}
+
+	return ctx.JSON(usr)
 }
 
 // @Summary Delete an existing user.
@@ -99,8 +138,20 @@ func (u Users) update(ctx *fiber.Ctx) error {
 // @Failure 400 {string} string "Wrong input"
 // @Failure 401 {string} string "Forbidden"
 // @Failure 500 {string} string "Something went wrong"
+// @Param Authorization header string true "The authentication token"
 // @Param id path string true "The id of the user to delete"
 // @Router /api/users [delete]
 func (u Users) delete(ctx *fiber.Ctx) error {
-	return ctx.SendString("")
+	id := ctx.Get("id")
+	i, err := u.userService.Delete(id, ctx.UserContext())
+	if err != nil {
+		u.log.Error(err)
+		return fiber.ErrInternalServerError
+	}
+
+	if i == 0 {
+		return fiber.ErrBadRequest
+	}
+
+	return ctx.SendStatus(fiber.StatusOK)
 }
