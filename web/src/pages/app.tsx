@@ -1,10 +1,10 @@
 import {Menu, Popover, Transition} from "@headlessui/react";
 import {MenuIcon, XIcon} from "@heroicons/react/outline";
-import {ChartBarIcon, SearchIcon, UsersIcon} from "@heroicons/react/solid";
+import {ChartBarIcon, FireIcon, SearchIcon, UserGroupIcon, UsersIcon} from "@heroicons/react/solid";
 import React, {Fragment} from "react";
 import {Link, Switch, useLocation} from "react-router-dom";
 import LoggedInRoute from "../components/route/logged_in";
-import {DASHBOARDS, GAMES, HOME, LOGOUT, USERS} from "../routes";
+import {DASHBOARDS, GAMES, HOME, LOGOUT, TEAMS, USERS} from "../routes";
 import {classNames} from "../utils/classes";
 import {DefaultRedirect} from "./404";
 import Dashboards from "./dashboards";
@@ -15,6 +15,7 @@ import avatar from "../../images/avatar.webp";
 import logo from "../../images/logo.webp";
 import {useAuth} from "../stores/authentication";
 import Games from "./games";
+import Teams from "./teams";
 
 const user = {
     name: "Thibault Fouache",
@@ -36,6 +37,20 @@ function App() {
             accessible: true,
             icon: ChartBarIcon,
             current: path.startsWith(DASHBOARDS),
+        },
+        {
+            name: "Games",
+            to: GAMES,
+            accessible: true,
+            icon: FireIcon,
+            current: path.startsWith(GAMES),
+        },
+        {
+            name: "Teams",
+            to: TEAMS,
+            accessible: true,
+            icon: UserGroupIcon,
+            current: path.startsWith(TEAMS),
         },
         {
             name: "Users",
@@ -242,14 +257,17 @@ function App() {
                                     <LoggedInRoute exact path={HOME}>
                                         <Home/>
                                     </LoggedInRoute>
-                                    <LoggedInRoute path={GAMES}>
-                                        <Games/>
-                                    </LoggedInRoute>
                                     <LoggedInRoute path={LOGOUT}>
                                         <Logout/>
                                     </LoggedInRoute>
                                     <LoggedInRoute path={DASHBOARDS}>
                                         <Dashboards/>
+                                    </LoggedInRoute>
+                                    <LoggedInRoute path={GAMES}>
+                                        <Games/>
+                                    </LoggedInRoute>
+                                    <LoggedInRoute path={TEAMS}>
+                                        <Teams/>
                                     </LoggedInRoute>
                                     <LoggedInRoute path={USERS} mustBeAdmin={true}>
                                         <Users/>
