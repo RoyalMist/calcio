@@ -68,7 +68,9 @@ func (gc *GameCreate) Save(ctx context.Context) (*Game, error) {
 		err  error
 		node *Game
 	)
-	gc.defaults()
+	if err := gc.defaults(); err != nil {
+		return nil, err
+	}
 	if len(gc.hooks) == 0 {
 		if err = gc.check(); err != nil {
 			return nil, err
@@ -127,15 +129,22 @@ func (gc *GameCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (gc *GameCreate) defaults() {
+func (gc *GameCreate) defaults() error {
 	if _, ok := gc.mutation.Date(); !ok {
+		if game.DefaultDate == nil {
+			return fmt.Errorf("ent: uninitialized game.DefaultDate (forgotten import ent/runtime?)")
+		}
 		v := game.DefaultDate()
 		gc.mutation.SetDate(v)
 	}
 	if _, ok := gc.mutation.ID(); !ok {
+		if game.DefaultID == nil {
+			return fmt.Errorf("ent: uninitialized game.DefaultID (forgotten import ent/runtime?)")
+		}
 		v := game.DefaultID()
 		gc.mutation.SetID(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

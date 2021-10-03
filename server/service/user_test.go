@@ -7,7 +7,7 @@ import (
 
 	"calcio/ent"
 	"calcio/ent/enttest"
-	"calcio/server/security"
+	"calcio/server/helpers"
 	"github.com/google/uuid"
 	_ "github.com/mattn/go-sqlite3"
 	"go.uber.org/zap/zaptest"
@@ -24,10 +24,7 @@ func TestUser_Login(t *testing.T) {
 		}
 	}(client)
 
-	fake := client.User.Create().SetName("fake").SetPassword("password").SaveX(security.NewContext(context.Background(), security.Claims{
-		UserId:  uuid.NewString(),
-		IsAdmin: true,
-	}))
+	fake := client.User.Create().SetName("fake").SetPassword("password").SaveX(helpers.LoggedInCtx(true))
 
 	type args struct {
 		name     string
@@ -106,14 +103,9 @@ func TestUser_List(t *testing.T) {
 		}
 	}(client)
 
-	adminCtx := security.NewContext(context.Background(), security.Claims{
-		UserId:  uuid.NewString(),
-		IsAdmin: true,
-	})
-
-	client.User.Create().SetName("fake1").SetPassword("password").SaveX(adminCtx)
-	client.User.Create().SetName("fake2").SetPassword("password").SaveX(adminCtx)
-	client.User.Create().SetName("fake3").SetPassword("password").SaveX(adminCtx)
+	client.User.Create().SetName("fake1").SetPassword("password").SaveX(helpers.LoggedInCtx(true))
+	client.User.Create().SetName("fake2").SetPassword("password").SaveX(helpers.LoggedInCtx(true))
+	client.User.Create().SetName("fake3").SetPassword("password").SaveX(helpers.LoggedInCtx(true))
 
 	type args struct {
 		ctx context.Context
@@ -131,11 +123,8 @@ func TestUser_List(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "An authenticated user should be able to retrieve the list of users",
-			args: args{ctx: security.NewContext(context.Background(), security.Claims{
-				UserId:  uuid.NewString(),
-				IsAdmin: false,
-			})},
+			name:    "An authenticated user should be able to retrieve the list of users",
+			args:    args{ctx: helpers.LoggedInCtx(false)},
 			want:    3,
 			wantErr: false,
 		},
@@ -200,10 +189,7 @@ func TestUser_Create(t *testing.T) {
 					Password: "password",
 					Admin:    false,
 				},
-				ctx: security.NewContext(context.Background(), security.Claims{
-					UserId:  uuid.NewString(),
-					IsAdmin: false,
-				}),
+				ctx: helpers.LoggedInCtx(false),
 			},
 			want:    nil,
 			wantErr: true,
@@ -216,10 +202,7 @@ func TestUser_Create(t *testing.T) {
 					Password: "password",
 					Admin:    false,
 				},
-				ctx: security.NewContext(context.Background(), security.Claims{
-					UserId:  uuid.NewString(),
-					IsAdmin: true,
-				}),
+				ctx: helpers.LoggedInCtx(true),
 			},
 			want: &ent.User{
 				Name:     "user",
@@ -263,11 +246,7 @@ func TestUser_Update(t *testing.T) {
 		}
 	}(client)
 
-	currentUser := client.User.Create().SetName("user").SetPassword("password").SetAdmin(false).SaveX(security.NewContext(context.Background(), security.Claims{
-		UserId:  uuid.NewString(),
-		IsAdmin: true,
-	}))
-
+	currentUser := client.User.Create().SetName("user").SetPassword("password").SetAdmin(false).SaveX(helpers.LoggedInCtx(true))
 	type args struct {
 		usr ent.User
 		ctx context.Context
@@ -301,10 +280,7 @@ func TestUser_Update(t *testing.T) {
 					Password: "mypassword",
 					Admin:    false,
 				},
-				ctx: security.NewContext(context.Background(), security.Claims{
-					UserId:  uuid.NewString(),
-					IsAdmin: false,
-				}),
+				ctx: helpers.LoggedInCtx(false),
 			},
 			want:    nil,
 			wantErr: true,
@@ -318,10 +294,7 @@ func TestUser_Update(t *testing.T) {
 					Password: "mypassword",
 					Admin:    false,
 				},
-				ctx: security.NewContext(context.Background(), security.Claims{
-					UserId:  uuid.NewString(),
-					IsAdmin: true,
-				}),
+				ctx: helpers.LoggedInCtx(true),
 			},
 			want:    &ent.User{},
 			wantErr: false,
@@ -358,14 +331,7 @@ func TestUser_Delete(t *testing.T) {
 		}
 	}(client)
 
-	adminCtx := security.NewContext(context.Background(), security.Claims{
-		UserId:   uuid.NewString(),
-		UserName: "admin",
-		IsAdmin:  true,
-	})
-
-	userInDb := client.User.Create().SetName("user").SetPassword("password").SaveX(adminCtx)
-
+	userInDb := client.User.Create().SetName("user").SetPassword("password").SaveX(helpers.LoggedInCtx(true))
 	type args struct {
 		id  string
 		ctx context.Context
@@ -388,12 +354,8 @@ func TestUser_Delete(t *testing.T) {
 		{
 			name: "an authenticated user with no admin rights should not be able to delete a user",
 			args: args{
-				id: userInDb.ID.String(),
-				ctx: security.NewContext(context.Background(), security.Claims{
-					UserId:   uuid.NewString(),
-					UserName: "non-admin",
-					IsAdmin:  false,
-				}),
+				id:  userInDb.ID.String(),
+				ctx: helpers.LoggedInCtx(false),
 			},
 			want:    0,
 			wantErr: true,
@@ -402,7 +364,7 @@ func TestUser_Delete(t *testing.T) {
 			name: "an admin should not be able to delete a user if it does not exist",
 			args: args{
 				id:  uuid.NewString(),
-				ctx: adminCtx,
+				ctx: helpers.LoggedInCtx(true),
 			},
 			want:    0,
 			wantErr: false,
@@ -411,7 +373,7 @@ func TestUser_Delete(t *testing.T) {
 			name: "an admin should be able to delete a user if it exists",
 			args: args{
 				id:  userInDb.ID.String(),
-				ctx: adminCtx,
+				ctx: helpers.LoggedInCtx(true),
 			},
 			want:    1,
 			wantErr: false,

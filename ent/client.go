@@ -247,7 +247,8 @@ func (c *GameClient) QueryParticipations(ga *Game) *ParticipationQuery {
 
 // Hooks returns the client hooks.
 func (c *GameClient) Hooks() []Hook {
-	return c.hooks.Game
+	hooks := c.hooks.Game
+	return append(hooks[:len(hooks):len(hooks)], game.Hooks[:]...)
 }
 
 // ParticipationClient is a client for the Participation schema.
@@ -369,7 +370,8 @@ func (c *ParticipationClient) QueryTeam(pa *Participation) *TeamQuery {
 
 // Hooks returns the client hooks.
 func (c *ParticipationClient) Hooks() []Hook {
-	return c.hooks.Participation
+	hooks := c.hooks.Participation
+	return append(hooks[:len(hooks):len(hooks)], participation.Hooks[:]...)
 }
 
 // TeamClient is a client for the Team schema.

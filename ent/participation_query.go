@@ -380,6 +380,12 @@ func (pq *ParticipationQuery) prepareQuery(ctx context.Context) error {
 		}
 		pq.sql = prev
 	}
+	if participation.Policy == nil {
+		return errors.New("ent: uninitialized participation.Policy (forgotten import ent/runtime?)")
+	}
+	if err := participation.Policy.EvalQuery(ctx, pq); err != nil {
+		return err
+	}
 	return nil
 }
 

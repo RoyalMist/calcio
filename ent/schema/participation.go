@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"calcio/ent/privacy"
+	"calcio/server/security"
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -23,5 +25,18 @@ func (Participation) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("game", Game.Type).Unique().Required(),
 		edge.To("team", Team.Type).Unique().Required(),
+	}
+}
+
+func (Participation) Policy() ent.Policy {
+	return privacy.Policy{
+		Query: privacy.QueryPolicy{
+			security.DenyIfNotLoggedIn(),
+			privacy.AlwaysAllowRule(),
+		},
+		Mutation: privacy.MutationPolicy{
+			security.DenyIfNotLoggedIn(),
+			privacy.AlwaysAllowRule(),
+		},
 	}
 }

@@ -3,6 +3,8 @@ package schema
 import (
 	"time"
 
+	"calcio/ent/privacy"
+	"calcio/server/security"
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
@@ -26,5 +28,18 @@ func (Game) Fields() []ent.Field {
 func (Game) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.From("participations", Participation.Type).Ref("game"),
+	}
+}
+
+func (Game) Policy() ent.Policy {
+	return privacy.Policy{
+		Query: privacy.QueryPolicy{
+			security.DenyIfNotLoggedIn(),
+			privacy.AlwaysAllowRule(),
+		},
+		Mutation: privacy.MutationPolicy{
+			security.DenyIfNotLoggedIn(),
+			privacy.AlwaysAllowRule(),
+		},
 	}
 }

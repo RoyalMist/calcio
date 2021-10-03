@@ -21,6 +21,15 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	game.Policy = privacy.NewPolicies(schema.Game{})
+	game.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := game.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
 	gameFields := schema.Game{}.Fields()
 	_ = gameFields
 	// gameDescDate is the schema descriptor for date field.
@@ -31,6 +40,15 @@ func init() {
 	gameDescID := gameFields[0].Descriptor()
 	// game.DefaultID holds the default value on creation for the id field.
 	game.DefaultID = gameDescID.Default.(func() uuid.UUID)
+	participation.Policy = privacy.NewPolicies(schema.Participation{})
+	participation.Hooks[0] = func(next ent.Mutator) ent.Mutator {
+		return ent.MutateFunc(func(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+			if err := participation.Policy.EvalMutation(ctx, m); err != nil {
+				return nil, err
+			}
+			return next.Mutate(ctx, m)
+		})
+	}
 	participationFields := schema.Participation{}.Fields()
 	_ = participationFields
 	// participationDescGoals is the schema descriptor for goals field.
@@ -48,9 +66,6 @@ func init() {
 			return next.Mutate(ctx, m)
 		})
 	}
-	teamHooks := schema.Team{}.Hooks()
-
-	team.Hooks[1] = teamHooks[0]
 	teamFields := schema.Team{}.Fields()
 	_ = teamFields
 	// teamDescName is the schema descriptor for name field.

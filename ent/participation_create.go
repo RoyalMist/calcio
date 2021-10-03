@@ -69,7 +69,9 @@ func (pc *ParticipationCreate) Save(ctx context.Context) (*Participation, error)
 		err  error
 		node *Participation
 	)
-	pc.defaults()
+	if err := pc.defaults(); err != nil {
+		return nil, err
+	}
 	if len(pc.hooks) == 0 {
 		if err = pc.check(); err != nil {
 			return nil, err
@@ -128,11 +130,12 @@ func (pc *ParticipationCreate) ExecX(ctx context.Context) {
 }
 
 // defaults sets the default values of the builder before save.
-func (pc *ParticipationCreate) defaults() {
+func (pc *ParticipationCreate) defaults() error {
 	if _, ok := pc.mutation.Goals(); !ok {
 		v := participation.DefaultGoals
 		pc.mutation.SetGoals(v)
 	}
+	return nil
 }
 
 // check runs all checks and user-defined validators on the builder.

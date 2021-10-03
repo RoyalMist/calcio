@@ -54,7 +54,7 @@ func ValidColumn(column string) bool {
 //	import _ "calcio/ent/runtime"
 //
 var (
-	Hooks  [2]ent.Hook
+	Hooks  [1]ent.Hook
 	Policy ent.Policy
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error

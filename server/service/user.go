@@ -43,7 +43,7 @@ func (u User) Login(name, password string) (*ent.User, error) {
 	return retrievedUser, nil
 }
 
-func (u User) List(ctx context.Context) ([]*ent.User, error) {
+func (u User) List(ctx context.Context) (ent.Users, error) {
 	return u.client.User.Query().Order(ent.Asc(user.FieldName)).All(ctx)
 }
 

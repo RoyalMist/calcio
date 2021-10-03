@@ -2,6 +2,10 @@
 
 package participation
 
+import (
+	"entgo.io/ent"
+)
+
 const (
 	// Label holds the string label denoting the participation type in the database.
 	Label = "participation"
@@ -59,7 +63,15 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+// Note that the variables below are initialized by the runtime
+// package on the initialization of the application. Therefore,
+// it should be imported in the main as follows:
+//
+//	import _ "calcio/ent/runtime"
+//
 var (
+	Hooks  [1]ent.Hook
+	Policy ent.Policy
 	// DefaultGoals holds the default value on creation for the "goals" field.
 	DefaultGoals int
 	// GoalsValidator is a validator for the "goals" field. It is called by the builders before save.

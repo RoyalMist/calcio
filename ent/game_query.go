@@ -344,6 +344,12 @@ func (gq *GameQuery) prepareQuery(ctx context.Context) error {
 		}
 		gq.sql = prev
 	}
+	if game.Policy == nil {
+		return errors.New("ent: uninitialized game.Policy (forgotten import ent/runtime?)")
+	}
+	if err := game.Policy.EvalQuery(ctx, gq); err != nil {
+		return err
+	}
 	return nil
 }
 
