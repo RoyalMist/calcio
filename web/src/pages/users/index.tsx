@@ -1,20 +1,25 @@
-import React from "react";
+import React, {useState} from "react";
 import {MailIcon} from '@heroicons/react/solid'
 import Spinner from "../../components/spinner";
 import SectionHeader from "../../components/section-header";
-import {toast} from "react-hot-toast";
 import {ent_User} from "../../gen";
+import SlideOver from "../../components/slide-over";
 
 function Users() {
     const isLoading = false;
+    const [open, setOpen] = useState(false);
     const data: ent_User[] = [];
+
 
     if (isLoading) {
         return <Spinner loading={isLoading}/>
     } else {
         return (
             <>
-                <SectionHeader action={() => toast.success("Hello")}>Users</SectionHeader>
+                <SectionHeader action={() => setOpen(true)}>Users</SectionHeader>
+                <SlideOver open={open} close={() => setOpen(false)} title="Edit User">
+                    <h1>Hello</h1>
+                </SlideOver>
                 <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {data.map((player: ent_User) => (
                         <li

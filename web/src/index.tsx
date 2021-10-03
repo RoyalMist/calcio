@@ -15,11 +15,11 @@ function Root() {
     const queryClient = new QueryClient({
         queryCache: new QueryCache({
             onError: (err) =>
-                toast.error(`Something went wrong: ${err}`),
+                toast.error(`${err}`),
         }),
         mutationCache: new MutationCache({
             onError: (err) =>
-                toast.error(`Something went wrong: ${err}`),
+                toast.error(`${err}`),
         })
     });
 

@@ -45,3 +45,8 @@ A development server and the go api are launched by the following commands:
 `$ make dev`  
 Then go to http://localhost:3000 to benefit hot code reload on frontend.  
 Api are available on http://localhost:4000.
+
+## Improvements to be done
+
+* Frontend testing
+* Frontend forms validation with Yup
