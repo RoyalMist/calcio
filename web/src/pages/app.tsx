@@ -39,7 +39,7 @@ function App() {
             current: path.startsWith(GAMES),
         },
         {
-            name: "Teams",
+            name: "Players & Teams",
             to: TEAMS,
             accessible: true,
             icon: UserGroupIcon,
