@@ -140,9 +140,9 @@ func (u Users) update(ctx *fiber.Ctx) error {
 // @Failure 500 {string} string "Something went wrong"
 // @Param Authorization header string true "The authentication token"
 // @Param id path string true "The id of the user to delete"
-// @Router /api/users [delete]
+// @Router /api/users/{id} [delete]
 func (u Users) delete(ctx *fiber.Ctx) error {
-	id := ctx.Get("id")
+	id := ctx.Params("id")
 	i, err := u.userService.Delete(id, ctx.UserContext())
 	if err != nil {
 		u.log.Error(err)

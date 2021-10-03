@@ -35,7 +35,7 @@ function Login() {
                                 <Formik
                                     initialValues={initialValues}
                                     onSubmit={(values) => {
-                                        signIn.mutate({name: values.name, password: values.password});
+                                        signIn.mutate({...values});
                                     }}>
                                     <Form className="space-y-6">
                                         <SimpleField

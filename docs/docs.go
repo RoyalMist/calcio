@@ -248,7 +248,9 @@ var doc = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/api/users/{id}": {
             "delete": {
                 "description": "Permits an admin to delete a user.",
                 "consumes": [

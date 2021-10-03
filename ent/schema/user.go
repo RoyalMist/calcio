@@ -58,7 +58,7 @@ func (User) Hooks() []ent.Hook {
 
 				return mutator.Mutate(ctx, mutation)
 			})
-		}, ent.OpCreate|ent.OpUpdate),
+		}, ent.OpCreate|ent.OpUpdate|ent.OpUpdateOne),
 	}
 }
 
