@@ -1,3 +1,5 @@
+import {decode} from "js-base64";
+
 export interface Paseto {
     exp: string;
     user_id: string;
@@ -11,7 +13,7 @@ const parse = (token: string | null): Paseto | null => {
     }
 
     try {
-        const decoded = window.atob(token.replaceAll(/[^A-Za-z0-9]|v[0-9]+\..+\./g, ""));
+        const decoded = decode(token);
         return JSON.parse(decoded.substring(decoded.indexOf("{"), decoded.indexOf("}") + 1));
     } catch (err) {
         console.error(err);
