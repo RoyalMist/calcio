@@ -211,25 +211,25 @@ func NameContainsFold(v string) predicate.Team {
 	})
 }
 
-// HasPlayers applies the HasEdge predicate on the "players" edge.
-func HasPlayers() predicate.Team {
+// HasUsers applies the HasEdge predicate on the "users" edge.
+func HasUsers() predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PlayersTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, PlayersTable, PlayersPrimaryKey...),
+			sqlgraph.To(UsersTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasPlayersWith applies the HasEdge predicate on the "players" edge with a given conditions (other predicates).
-func HasPlayersWith(preds ...predicate.User) predicate.Team {
+// HasUsersWith applies the HasEdge predicate on the "users" edge with a given conditions (other predicates).
+func HasUsersWith(preds ...predicate.User) predicate.Team {
 	return predicate.Team(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(PlayersInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, PlayersTable, PlayersPrimaryKey...),
+			sqlgraph.To(UsersInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.M2M, true, UsersTable, UsersPrimaryKey...),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

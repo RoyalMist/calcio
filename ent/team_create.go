@@ -33,19 +33,19 @@ func (tc *TeamCreate) SetID(u uuid.UUID) *TeamCreate {
 	return tc
 }
 
-// AddPlayerIDs adds the "players" edge to the User entity by IDs.
-func (tc *TeamCreate) AddPlayerIDs(ids ...uuid.UUID) *TeamCreate {
-	tc.mutation.AddPlayerIDs(ids...)
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (tc *TeamCreate) AddUserIDs(ids ...uuid.UUID) *TeamCreate {
+	tc.mutation.AddUserIDs(ids...)
 	return tc
 }
 
-// AddPlayers adds the "players" edges to the User entity.
-func (tc *TeamCreate) AddPlayers(u ...*User) *TeamCreate {
+// AddUsers adds the "users" edges to the User entity.
+func (tc *TeamCreate) AddUsers(u ...*User) *TeamCreate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return tc.AddPlayerIDs(ids...)
+	return tc.AddUserIDs(ids...)
 }
 
 // Mutation returns the TeamMutation object of the builder.
@@ -141,8 +141,8 @@ func (tc *TeamCreate) check() error {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "name": %w`, err)}
 		}
 	}
-	if len(tc.mutation.PlayersIDs()) == 0 {
-		return &ValidationError{Name: "players", err: errors.New("ent: missing required edge \"players\"")}
+	if len(tc.mutation.UsersIDs()) == 0 {
+		return &ValidationError{Name: "users", err: errors.New("ent: missing required edge \"users\"")}
 	}
 	return nil
 }
@@ -184,12 +184,12 @@ func (tc *TeamCreate) createSpec() (*Team, *sqlgraph.CreateSpec) {
 		})
 		_node.Name = value
 	}
-	if nodes := tc.mutation.PlayersIDs(); len(nodes) > 0 {
+	if nodes := tc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

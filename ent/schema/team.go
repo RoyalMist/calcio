@@ -25,7 +25,7 @@ func (Team) Fields() []ent.Field {
 // Edges of the Team.
 func (Team) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("players", User.Type).Ref("teams").Required(),
+		edge.From("users", User.Type).Ref("teams").Required(),
 	}
 }
 

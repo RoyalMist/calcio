@@ -28,7 +28,7 @@ type TeamQuery struct {
 	fields     []string
 	predicates []predicate.Team
 	// eager-loading edges.
-	withPlayers *UserQuery
+	withUsers *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -65,8 +65,8 @@ func (tq *TeamQuery) Order(o ...OrderFunc) *TeamQuery {
 	return tq
 }
 
-// QueryPlayers chains the current query on the "players" edge.
-func (tq *TeamQuery) QueryPlayers() *UserQuery {
+// QueryUsers chains the current query on the "users" edge.
+func (tq *TeamQuery) QueryUsers() *UserQuery {
 	query := &UserQuery{config: tq.config}
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := tq.prepareQuery(ctx); err != nil {
@@ -79,7 +79,7 @@ func (tq *TeamQuery) QueryPlayers() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(team.Table, team.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2M, true, team.PlayersTable, team.PlayersPrimaryKey...),
+			sqlgraph.Edge(sqlgraph.M2M, true, team.UsersTable, team.UsersPrimaryKey...),
 		)
 		fromU = sqlgraph.SetNeighbors(tq.driver.Dialect(), step)
 		return fromU, nil
@@ -263,26 +263,26 @@ func (tq *TeamQuery) Clone() *TeamQuery {
 		return nil
 	}
 	return &TeamQuery{
-		config:      tq.config,
-		limit:       tq.limit,
-		offset:      tq.offset,
-		order:       append([]OrderFunc{}, tq.order...),
-		predicates:  append([]predicate.Team{}, tq.predicates...),
-		withPlayers: tq.withPlayers.Clone(),
+		config:     tq.config,
+		limit:      tq.limit,
+		offset:     tq.offset,
+		order:      append([]OrderFunc{}, tq.order...),
+		predicates: append([]predicate.Team{}, tq.predicates...),
+		withUsers:  tq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  tq.sql.Clone(),
 		path: tq.path,
 	}
 }
 
-// WithPlayers tells the query-builder to eager-load the nodes that are connected to
-// the "players" edge. The optional arguments are used to configure the query builder of the edge.
-func (tq *TeamQuery) WithPlayers(opts ...func(*UserQuery)) *TeamQuery {
+// WithUsers tells the query-builder to eager-load the nodes that are connected to
+// the "users" edge. The optional arguments are used to configure the query builder of the edge.
+func (tq *TeamQuery) WithUsers(opts ...func(*UserQuery)) *TeamQuery {
 	query := &UserQuery{config: tq.config}
 	for _, opt := range opts {
 		opt(query)
 	}
-	tq.withPlayers = query
+	tq.withUsers = query
 	return tq
 }
 
@@ -358,7 +358,7 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 		nodes       = []*Team{}
 		_spec       = tq.querySpec()
 		loadedTypes = [1]bool{
-			tq.withPlayers != nil,
+			tq.withUsers != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]interface{}, error) {
@@ -381,13 +381,13 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 		return nodes, nil
 	}
 
-	if query := tq.withPlayers; query != nil {
+	if query := tq.withUsers; query != nil {
 		fks := make([]driver.Value, 0, len(nodes))
 		ids := make(map[uuid.UUID]*Team, len(nodes))
 		for _, node := range nodes {
 			ids[node.ID] = node
 			fks = append(fks, node.ID)
-			node.Edges.Players = []*User{}
+			node.Edges.Users = []*User{}
 		}
 		var (
 			edgeids []uuid.UUID
@@ -396,11 +396,11 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 		_spec := &sqlgraph.EdgeQuerySpec{
 			Edge: &sqlgraph.EdgeSpec{
 				Inverse: true,
-				Table:   team.PlayersTable,
-				Columns: team.PlayersPrimaryKey,
+				Table:   team.UsersTable,
+				Columns: team.UsersPrimaryKey,
 			},
 			Predicate: func(s *sql.Selector) {
-				s.Where(sql.InValues(team.PlayersPrimaryKey[1], fks...))
+				s.Where(sql.InValues(team.UsersPrimaryKey[1], fks...))
 			},
 			ScanValues: func() [2]interface{} {
 				return [2]interface{}{new(uuid.UUID), new(uuid.UUID)}
@@ -428,7 +428,7 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 			},
 		}
 		if err := sqlgraph.QueryEdges(ctx, tq.driver, _spec); err != nil {
-			return nil, fmt.Errorf(`query edges "players": %w`, err)
+			return nil, fmt.Errorf(`query edges "users": %w`, err)
 		}
 		query.Where(user.IDIn(edgeids...))
 		neighbors, err := query.All(ctx)
@@ -438,10 +438,10 @@ func (tq *TeamQuery) sqlAll(ctx context.Context) ([]*Team, error) {
 		for _, n := range neighbors {
 			nodes, ok := edges[n.ID]
 			if !ok {
-				return nil, fmt.Errorf(`unexpected "players" node returned %v`, n.ID)
+				return nil, fmt.Errorf(`unexpected "users" node returned %v`, n.ID)
 			}
 			for i := range nodes {
-				nodes[i].Edges.Players = append(nodes[i].Edges.Players, n)
+				nodes[i].Edges.Users = append(nodes[i].Edges.Users, n)
 			}
 		}
 	}

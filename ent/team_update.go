@@ -34,19 +34,19 @@ func (tu *TeamUpdate) SetName(s string) *TeamUpdate {
 	return tu
 }
 
-// AddPlayerIDs adds the "players" edge to the User entity by IDs.
-func (tu *TeamUpdate) AddPlayerIDs(ids ...uuid.UUID) *TeamUpdate {
-	tu.mutation.AddPlayerIDs(ids...)
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (tu *TeamUpdate) AddUserIDs(ids ...uuid.UUID) *TeamUpdate {
+	tu.mutation.AddUserIDs(ids...)
 	return tu
 }
 
-// AddPlayers adds the "players" edges to the User entity.
-func (tu *TeamUpdate) AddPlayers(u ...*User) *TeamUpdate {
+// AddUsers adds the "users" edges to the User entity.
+func (tu *TeamUpdate) AddUsers(u ...*User) *TeamUpdate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return tu.AddPlayerIDs(ids...)
+	return tu.AddUserIDs(ids...)
 }
 
 // Mutation returns the TeamMutation object of the builder.
@@ -54,25 +54,25 @@ func (tu *TeamUpdate) Mutation() *TeamMutation {
 	return tu.mutation
 }
 
-// ClearPlayers clears all "players" edges to the User entity.
-func (tu *TeamUpdate) ClearPlayers() *TeamUpdate {
-	tu.mutation.ClearPlayers()
+// ClearUsers clears all "users" edges to the User entity.
+func (tu *TeamUpdate) ClearUsers() *TeamUpdate {
+	tu.mutation.ClearUsers()
 	return tu
 }
 
-// RemovePlayerIDs removes the "players" edge to User entities by IDs.
-func (tu *TeamUpdate) RemovePlayerIDs(ids ...uuid.UUID) *TeamUpdate {
-	tu.mutation.RemovePlayerIDs(ids...)
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (tu *TeamUpdate) RemoveUserIDs(ids ...uuid.UUID) *TeamUpdate {
+	tu.mutation.RemoveUserIDs(ids...)
 	return tu
 }
 
-// RemovePlayers removes "players" edges to User entities.
-func (tu *TeamUpdate) RemovePlayers(u ...*User) *TeamUpdate {
+// RemoveUsers removes "users" edges to User entities.
+func (tu *TeamUpdate) RemoveUsers(u ...*User) *TeamUpdate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return tu.RemovePlayerIDs(ids...)
+	return tu.RemoveUserIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -170,12 +170,12 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Column: team.FieldName,
 		})
 	}
-	if tu.mutation.PlayersCleared() {
+	if tu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -186,12 +186,12 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.RemovedPlayersIDs(); len(nodes) > 0 && !tu.mutation.PlayersCleared() {
+	if nodes := tu.mutation.RemovedUsersIDs(); len(nodes) > 0 && !tu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -205,12 +205,12 @@ func (tu *TeamUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.PlayersIDs(); len(nodes) > 0 {
+	if nodes := tu.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -249,19 +249,19 @@ func (tuo *TeamUpdateOne) SetName(s string) *TeamUpdateOne {
 	return tuo
 }
 
-// AddPlayerIDs adds the "players" edge to the User entity by IDs.
-func (tuo *TeamUpdateOne) AddPlayerIDs(ids ...uuid.UUID) *TeamUpdateOne {
-	tuo.mutation.AddPlayerIDs(ids...)
+// AddUserIDs adds the "users" edge to the User entity by IDs.
+func (tuo *TeamUpdateOne) AddUserIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	tuo.mutation.AddUserIDs(ids...)
 	return tuo
 }
 
-// AddPlayers adds the "players" edges to the User entity.
-func (tuo *TeamUpdateOne) AddPlayers(u ...*User) *TeamUpdateOne {
+// AddUsers adds the "users" edges to the User entity.
+func (tuo *TeamUpdateOne) AddUsers(u ...*User) *TeamUpdateOne {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return tuo.AddPlayerIDs(ids...)
+	return tuo.AddUserIDs(ids...)
 }
 
 // Mutation returns the TeamMutation object of the builder.
@@ -269,25 +269,25 @@ func (tuo *TeamUpdateOne) Mutation() *TeamMutation {
 	return tuo.mutation
 }
 
-// ClearPlayers clears all "players" edges to the User entity.
-func (tuo *TeamUpdateOne) ClearPlayers() *TeamUpdateOne {
-	tuo.mutation.ClearPlayers()
+// ClearUsers clears all "users" edges to the User entity.
+func (tuo *TeamUpdateOne) ClearUsers() *TeamUpdateOne {
+	tuo.mutation.ClearUsers()
 	return tuo
 }
 
-// RemovePlayerIDs removes the "players" edge to User entities by IDs.
-func (tuo *TeamUpdateOne) RemovePlayerIDs(ids ...uuid.UUID) *TeamUpdateOne {
-	tuo.mutation.RemovePlayerIDs(ids...)
+// RemoveUserIDs removes the "users" edge to User entities by IDs.
+func (tuo *TeamUpdateOne) RemoveUserIDs(ids ...uuid.UUID) *TeamUpdateOne {
+	tuo.mutation.RemoveUserIDs(ids...)
 	return tuo
 }
 
-// RemovePlayers removes "players" edges to User entities.
-func (tuo *TeamUpdateOne) RemovePlayers(u ...*User) *TeamUpdateOne {
+// RemoveUsers removes "users" edges to User entities.
+func (tuo *TeamUpdateOne) RemoveUsers(u ...*User) *TeamUpdateOne {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return tuo.RemovePlayerIDs(ids...)
+	return tuo.RemoveUserIDs(ids...)
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
@@ -409,12 +409,12 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 			Column: team.FieldName,
 		})
 	}
-	if tuo.mutation.PlayersCleared() {
+	if tuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -425,12 +425,12 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.RemovedPlayersIDs(); len(nodes) > 0 && !tuo.mutation.PlayersCleared() {
+	if nodes := tuo.mutation.RemovedUsersIDs(); len(nodes) > 0 && !tuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
@@ -444,12 +444,12 @@ func (tuo *TeamUpdateOne) sqlSave(ctx context.Context) (_node *Team, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.PlayersIDs(); len(nodes) > 0 {
+	if nodes := tuo.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2M,
 			Inverse: true,
-			Table:   team.PlayersTable,
-			Columns: team.PlayersPrimaryKey,
+			Table:   team.UsersTable,
+			Columns: team.UsersPrimaryKey,
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

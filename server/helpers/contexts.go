@@ -15,9 +15,9 @@ func LoggedInCtx(admin bool) context.Context {
 	})
 }
 
-func LoggedInCtxWithName(admin bool, name string) context.Context {
+func LoggedInCtxWithIdAndName(id uuid.UUID, name string, admin bool) context.Context {
 	return security.NewContext(context.Background(), security.Claims{
-		UserId:   uuid.NewString(),
+		UserId:   id.String(),
 		UserName: name,
 		IsAdmin:  admin,
 	})
