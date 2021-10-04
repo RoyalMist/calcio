@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"calcio/ent"
+	"calcio/server/security"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/fx"
@@ -27,12 +28,13 @@ func NewTeam(logger *zap.SugaredLogger, client *ent.Client) *Team {
 	}
 }
 
-func (t Team) Create(playerOne string, playerTwo string, ctx context.Context) (*ent.Team, error) {
+func (t Team) Create(playerTwo string, ctx context.Context) (*ent.Team, error) {
 	var separator string
 	if playerTwo != "" {
 		separator = " & "
 	}
 
+	playerOne := security.FromContext(ctx).UserId
 	name := fmt.Sprintf("%s%s%s", playerOne, separator, playerTwo)
 	operation := t.client.Team.Create().SetName(name)
 	if id, err := uuid.Parse(playerOne); err != nil {

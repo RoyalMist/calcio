@@ -14,3 +14,11 @@ func LoggedInCtx(admin bool) context.Context {
 		IsAdmin:  admin,
 	})
 }
+
+func LoggedInCtxWithName(admin bool, name string) context.Context {
+	return security.NewContext(context.Background(), security.Claims{
+		UserId:   uuid.NewString(),
+		UserName: name,
+		IsAdmin:  admin,
+	})
+}

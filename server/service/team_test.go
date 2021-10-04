@@ -46,6 +46,26 @@ func TestTeam_Create(t1 *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			name: "an authenticated user should be able to create a solo team",
+			args: args{
+				ctx:       context.Background(),
+				playerOne: playerOne.ID.String(),
+				playerTwo: playerTwo.ID.String(),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "an authenticated user should be able to create a duo team",
+			args: args{
+				ctx:       context.Background(),
+				playerOne: playerOne.ID.String(),
+				playerTwo: playerTwo.ID.String(),
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t1.Run(tt.name, func(t1 *testing.T) {

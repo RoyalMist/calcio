@@ -2,6 +2,8 @@ services:
   backend:
     image: royalmist/calcio:latest
     restart: on-failure
+    depends_on:
+      - db
     environment:
       - DB_URL=host=db port=5432 user=postgres dbname=calcio password=postgres sslmode=disable
     ports:
