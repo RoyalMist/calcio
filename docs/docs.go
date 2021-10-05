@@ -364,8 +364,8 @@ var doc = `{
         "ent.TeamEdges": {
             "type": "object",
             "properties": {
-                "players": {
-                    "description": "Players holds the value of the players edge.",
+                "users": {
+                    "description": "Users holds the value of the users edge.",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/ent.User"

@@ -6,8 +6,10 @@ import (
 	"calcio/server/security"
 	"calcio/server/service"
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Auth struct {
@@ -63,6 +65,8 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 
 	usr, err := a.uService.Login(body.Name, body.Password)
 	if err != nil {
+		// simulate a bcrypt round to eliminate timing guesses.
+		_, _ = bcrypt.GenerateFromPassword([]byte(uuid.NewString()), security.HashCost)
 		return fiber.ErrBadRequest
 	}
 
