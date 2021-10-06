@@ -32,7 +32,7 @@ This is not a mandatory requirement but the current Readme assumes that you got 
 
 In order to log in a default admin user is created a first boot (admin / admin123).  
 You can find a running deployment [here](https://calcio.alpchemist.ch)  
-You can find the api documentation [here](https://calcio.alpchemist.ch/doc/index.html)  
+You can find the api documentation [here](https://calcio.alpchemist.ch/api/doc/index.html)  
 The image is available on [Dockerhub](https://hub.docker.com/r/royalmist/calcio)  
 If you want to run the project locally without any dependencies use the provided docker-compose file.  
 It will set up a PostgreSQL server for you along with the application.  

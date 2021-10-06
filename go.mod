@@ -6,9 +6,11 @@ require (
 	entgo.io/ent v0.9.1
 	github.com/arsmn/fiber-swagger/v2 v2.17.0
 	github.com/gofiber/fiber/v2 v2.19.0
+	github.com/gofiber/helmet/v2 v2.2.2
 	github.com/google/uuid v1.3.0
 	github.com/lib/pq v1.10.2
 	github.com/mattn/go-sqlite3 v1.14.8
+	github.com/pkg/errors v0.9.1
 	github.com/spf13/viper v1.8.1
 	github.com/swaggo/swag v1.7.2
 	github.com/vk-rv/pvx v0.0.0-20210912195928-ac00bc32f6e7
@@ -34,7 +36,6 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/pelletier/go-toml v1.9.3 // indirect
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect

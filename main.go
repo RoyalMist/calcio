@@ -17,6 +17,7 @@ import (
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/filesystem"
+	"github.com/gofiber/helmet/v2"
 	"go.uber.org/fx"
 )
 
@@ -38,6 +39,7 @@ func main() {
 			settings.Module,
 			api.AuthModule,
 			api.UsersModule,
+			api.TeamsModule,
 			api.GamesModule,
 			service.UserModule,
 			service.TeamModule,
@@ -51,10 +53,13 @@ func setup(client *ent.Client) {
 	_ = security.CreateAdmin(client)
 }
 
-func run(app *fiber.App, auth *api.Auth, users *api.Users) {
-	auth.Start("/api/auth", security.RateLimit(10, 5*time.Minute))
-	users.Start("/api/users", security.IsAuthenticated)
-	app.Get("/doc/*", swagger.Handler)
+func run(app *fiber.App, auth *api.Auth, users *api.Users, teams *api.Teams) {
+	apiRouter := app.Group("/api").Use(helmet.New())
+	auth.Start(apiRouter.Group("/auth"), security.RateLimit(10, 5*time.Minute))
+	users.Start(apiRouter.Group("/users"), security.IsAuthenticated)
+	teams.Start(apiRouter.Group("/teams"), security.IsAuthenticated)
+	apiRouter.Get("/doc/*", swagger.Handler)
+
 	web, err := fs.Sub(efs, "web/dist")
 	if err != nil {
 		log.Fatal(err)

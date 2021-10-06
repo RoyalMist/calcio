@@ -13,25 +13,22 @@ import (
 )
 
 type Auth struct {
-	app      *fiber.App
-	log      *zap.SugaredLogger
-	uService *service.User
+	log     *zap.SugaredLogger
+	service *service.User
 }
 
 // AuthModule makes the injectable available for FX.
 var AuthModule = fx.Provide(NewAuth)
 
 // NewAuth creates a new injectable.
-func NewAuth(app *fiber.App, logger *zap.SugaredLogger, user *service.User) *Auth {
+func NewAuth(logger *zap.SugaredLogger, user *service.User) *Auth {
 	return &Auth{
-		app:      app,
-		log:      logger,
-		uService: user,
+		log:     logger,
+		service: user,
 	}
 }
 
-func (a Auth) Start(base string, middlewares ...fiber.Handler) {
-	router := a.app.Group(base)
+func (a Auth) Start(router fiber.Router, middlewares ...fiber.Handler) {
 	for _, middleware := range middlewares {
 		if middleware != nil {
 			router.Use(middleware)
@@ -63,7 +60,7 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	usr, err := a.uService.Login(body.Name, body.Password)
+	usr, err := a.service.Login(body.Name, body.Password)
 	if err != nil {
 		// simulate a bcrypt round to eliminate timing guesses.
 		_, _ = bcrypt.GenerateFromPassword([]byte(uuid.NewString()), security.HashCost)

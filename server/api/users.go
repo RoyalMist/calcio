@@ -14,7 +14,6 @@ type user struct {
 }
 
 type Users struct {
-	app         *fiber.App
 	log         *zap.SugaredLogger
 	userService *service.User
 }
@@ -23,16 +22,14 @@ type Users struct {
 var UsersModule = fx.Provide(NewUsers)
 
 // NewUsers creates a new injectable.
-func NewUsers(app *fiber.App, logger *zap.SugaredLogger, user *service.User) *Users {
+func NewUsers(logger *zap.SugaredLogger, user *service.User) *Users {
 	return &Users{
-		app:         app,
 		log:         logger,
 		userService: user,
 	}
 }
 
-func (u Users) Start(base string, middlewares ...fiber.Handler) {
-	router := u.app.Group(base)
+func (u Users) Start(router fiber.Router, middlewares ...fiber.Handler) {
 	for _, middleware := range middlewares {
 		if middleware != nil {
 			router.Use(middleware)

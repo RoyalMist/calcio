@@ -7,7 +7,6 @@ import (
 )
 
 type Games struct {
-	app *fiber.App
 	log *zap.SugaredLogger
 }
 
@@ -15,15 +14,13 @@ type Games struct {
 var GamesModule = fx.Provide(NewGames)
 
 // NewGames creates a new injectable.
-func NewGames(app *fiber.App, logger *zap.SugaredLogger) *Games {
+func NewGames(logger *zap.SugaredLogger) *Games {
 	return &Games{
-		app: app,
 		log: logger,
 	}
 }
 
-func (g Games) Start(base string, middlewares ...fiber.Handler) {
-	router := g.app.Group(base)
+func (g Games) Start(router fiber.Router, middlewares ...fiber.Handler) {
 	for _, middleware := range middlewares {
 		if middleware != nil {
 			router.Use(middleware)
