@@ -14,10 +14,6 @@ function Users() {
     const [open, setOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<api_user>({name: "", password: "", admin: false});
 
-    const close = () => {
-        setOpen(false);
-    }
-
     const newUser = () => {
         setSelectedUser({name: "", password: "", admin: false});
         setOpen(true);
@@ -38,7 +34,7 @@ function Users() {
         }
     }, {
         onSuccess: async () => {
-            close();
+            setOpen(false);
             return await queryClient.invalidateQueries('users');
         }
     });
@@ -55,7 +51,7 @@ function Users() {
         <>
             <Spinner loading={usersQuery.isLoading || saveUser.isLoading}/>
             <SectionHeader action={newUser}>Users</SectionHeader>
-            <SlideOver open={open} close={close} title="Edit User">
+            <SlideOver open={open} close={() => setOpen(false)} title="Edit User">
                 <Formik
                     initialValues={selectedUser}
                     onSubmit={(values) => {
