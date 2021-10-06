@@ -33,7 +33,7 @@ var doc = `{
     "paths": {
         "/api/auth/login": {
             "post": {
-                "description": "Log in and retrieve the PASETO token signed. This method is rate limited.",
+                "description": "Log in and retrieve the PASETO token signed. This method is rate limited",
                 "consumes": [
                     "application/json"
                 ],
@@ -43,7 +43,7 @@ var doc = `{
                 "tags": [
                     "authentication"
                 ],
-                "summary": "Permits a user to log in to Calcio if credentials are valid.",
+                "summary": "Permits a user to log in to Calcio if credentials are valid",
                 "parameters": [
                     {
                         "description": "Login json object",
@@ -83,9 +83,116 @@ var doc = `{
                 }
             }
         },
+        "/api/teams": {
+            "get": {
+                "description": "Retrieve a list of teams as json, all teams if user is admin otherwise the teams the user belongs to",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "List teams the users belongs to",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The authentication token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The list of teams",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ent.Team"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Authentication token is absent",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid authentication token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Create a new team with the connected user as the first member",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "teams"
+                ],
+                "summary": "Create a team",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The authentication token",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The teammate id",
+                        "name": "teammate",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The newly created team",
+                        "schema": {
+                            "$ref": "#/definitions/ent.Team"
+                        }
+                    },
+                    "400": {
+                        "description": "Authentication token is absent",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid authentication token",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Something went wrong",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/users": {
             "get": {
-                "description": "Retrieves all Calcio's users as a json list.",
+                "description": "Retrieves all Calcio's users as a json list",
                 "consumes": [
                     "application/json"
                 ],
@@ -95,7 +202,7 @@ var doc = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Fetch all Calcio's users.",
+                "summary": "Fetch all Calcio's users",
                 "parameters": [
                     {
                         "type": "string",
@@ -136,7 +243,7 @@ var doc = `{
                 }
             },
             "put": {
-                "description": "Permits an administrator to update a user.",
+                "description": "Permits an administrator to update a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -146,7 +253,7 @@ var doc = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Update an existing user.",
+                "summary": "Update an existing user",
                 "parameters": [
                     {
                         "type": "string",
@@ -193,7 +300,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "Permits an administrator to create other users.",
+                "description": "Permits an administrator to create other users",
                 "consumes": [
                     "application/json"
                 ],
@@ -203,7 +310,7 @@ var doc = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Create a new user.",
+                "summary": "Create a new user",
                 "parameters": [
                     {
                         "type": "string",
@@ -252,7 +359,7 @@ var doc = `{
         },
         "/api/users/{id}": {
             "delete": {
-                "description": "Permits an admin to delete a user.",
+                "description": "Permits an admin to delete a user",
                 "consumes": [
                     "application/json"
                 ],
@@ -262,7 +369,7 @@ var doc = `{
                 "tags": [
                     "users"
                 ],
-                "summary": "Delete an existing user.",
+                "summary": "Delete an existing user",
                 "parameters": [
                     {
                         "type": "string",
@@ -425,7 +532,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "",
 	Schemes:     []string{"http", "https"},
 	Title:       "Calcio API",
-	Description: "Calcio, Table Football App.",
+	Description: "Calcio, Table Football App",
 }
 
 type s struct{}

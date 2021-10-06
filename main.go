@@ -26,7 +26,7 @@ var efs embed.FS
 
 // @title Calcio API
 // @version 1.0
-// @description Calcio, Table Football App.
+// @description Calcio, Table Football App
 // @contact.name Royal Mist
 // @contact.url https://github.com/RoyalMist
 // @contact.email royalmist@calcio.ch

@@ -13,8 +13,8 @@ import (
 )
 
 type Auth struct {
-	log     *zap.SugaredLogger
-	service *service.User
+	log  *zap.SugaredLogger
+	user *service.User
 }
 
 // AuthModule makes the injectable available for FX.
@@ -23,8 +23,8 @@ var AuthModule = fx.Provide(NewAuth)
 // NewAuth creates a new injectable.
 func NewAuth(logger *zap.SugaredLogger, user *service.User) *Auth {
 	return &Auth{
-		log:     logger,
-		service: user,
+		log:  logger,
+		user: user,
 	}
 }
 
@@ -43,8 +43,8 @@ type login struct {
 	Password string `json:"password"`
 }
 
-// @Summary Permits a user to log in to Calcio if credentials are valid.
-// @Description Log in and retrieve the PASETO token signed. This method is rate limited.
+// @Summary Permits a user to log in to Calcio if credentials are valid
+// @Description Log in and retrieve the PASETO token signed. This method is rate limited
 // @Tags authentication
 // @Accept json
 // @Produce json
@@ -60,7 +60,7 @@ func (a Auth) login(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	usr, err := a.service.Login(body.Name, body.Password)
+	usr, err := a.user.Login(body.Name, body.Password)
 	if err != nil {
 		// simulate a bcrypt round to eliminate timing guesses.
 		_, _ = bcrypt.GenerateFromPassword([]byte(uuid.NewString()), security.HashCost)

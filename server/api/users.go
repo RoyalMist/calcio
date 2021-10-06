@@ -14,8 +14,8 @@ type user struct {
 }
 
 type Users struct {
-	log         *zap.SugaredLogger
-	userService *service.User
+	log  *zap.SugaredLogger
+	user *service.User
 }
 
 // UsersModule makes the injectable available for FX.
@@ -24,8 +24,8 @@ var UsersModule = fx.Provide(NewUsers)
 // NewUsers creates a new injectable.
 func NewUsers(logger *zap.SugaredLogger, user *service.User) *Users {
 	return &Users{
-		log:         logger,
-		userService: user,
+		log:  logger,
+		user: user,
 	}
 }
 
@@ -36,14 +36,14 @@ func (u Users) Start(router fiber.Router, middlewares ...fiber.Handler) {
 		}
 	}
 
-	router.Get("", u.all)
+	router.Get("", u.list)
 	router.Post("", u.create)
 	router.Put("", u.update)
 	router.Delete("/:id", u.delete)
 }
 
-// @Summary Fetch all Calcio's users.
-// @Description Retrieves all Calcio's users as a json list.
+// @Summary Fetch all Calcio's users
+// @Description Retrieves all Calcio's users as a json list
 // @Tags users
 // @Accept json
 // @Produce json
@@ -53,8 +53,8 @@ func (u Users) Start(router fiber.Router, middlewares ...fiber.Handler) {
 // @Failure 500 {string} string "Something went wrong"
 // @Param Authorization header string true "The authentication token"
 // @Router /api/users [get]
-func (u Users) all(ctx *fiber.Ctx) error {
-	users, err := u.userService.List(ctx.UserContext())
+func (u Users) list(ctx *fiber.Ctx) error {
+	users, err := u.user.List(ctx.UserContext())
 	if err != nil {
 		u.log.Errorf("impossible to retieve users %v", err)
 		return fiber.ErrInternalServerError
@@ -63,8 +63,8 @@ func (u Users) all(ctx *fiber.Ctx) error {
 	return ctx.JSON(users)
 }
 
-// @Summary Create a new user.
-// @Description Permits an administrator to create other users.
+// @Summary Create a new user
+// @Description Permits an administrator to create other users
 // @Tags users
 // @Accept json
 // @Produce json
@@ -81,7 +81,7 @@ func (u Users) create(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	usr, err := u.userService.Create(ent.User{
+	usr, err := u.user.Create(ent.User{
 		Name:     body.Name,
 		Password: body.Password,
 		Admin:    body.Admin,
@@ -94,8 +94,8 @@ func (u Users) create(ctx *fiber.Ctx) error {
 	return ctx.JSON(usr)
 }
 
-// @Summary Update an existing user.
-// @Description Permits an administrator to update a user.
+// @Summary Update an existing user
+// @Description Permits an administrator to update a user
 // @Tags users
 // @Accept json
 // @Produce json
@@ -112,7 +112,7 @@ func (u Users) update(ctx *fiber.Ctx) error {
 		return fiber.ErrBadRequest
 	}
 
-	usr, err := u.userService.Update(ent.User{
+	usr, err := u.user.Update(ent.User{
 		ID:       body.ID,
 		Name:     body.Name,
 		Password: body.Password,
@@ -126,8 +126,8 @@ func (u Users) update(ctx *fiber.Ctx) error {
 	return ctx.JSON(usr)
 }
 
-// @Summary Delete an existing user.
-// @Description Permits an admin to delete a user.
+// @Summary Delete an existing user
+// @Description Permits an admin to delete a user
 // @Tags users
 // @Accept json
 // @Produce json
@@ -140,7 +140,7 @@ func (u Users) update(ctx *fiber.Ctx) error {
 // @Router /api/users/{id} [delete]
 func (u Users) delete(ctx *fiber.Ctx) error {
 	id := ctx.Params("id")
-	i, err := u.userService.Delete(id, ctx.UserContext())
+	i, err := u.user.Delete(id, ctx.UserContext())
 	if err != nil {
 		u.log.Error(err)
 		return fiber.ErrInternalServerError
