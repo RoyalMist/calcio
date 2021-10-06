@@ -1,67 +1,120 @@
-import React, {useState} from "react";
+import React, {Fragment, useState} from "react";
 import SectionHeader from "../../components/section-header";
 import {useAuth} from "../../stores/authentication";
 import Spinner from "../../components/spinner";
 import SlideOver from "../../components/slide-over";
-import {ent_Team, TeamsService, UsersService} from "../../gen";
+import {ent_Team, ent_User, TeamsService, UsersService} from "../../gen";
 import {useMutation, useQuery, useQueryClient} from "react-query";
+import {Form, Formik} from "formik";
+import {Listbox, Transition} from "@headlessui/react";
+import {CheckIcon, SelectorIcon} from "@heroicons/react/solid";
+import {classNames} from "../../utils/classes";
+
 
 const Teams = () => {
-    const {token} = useAuth();
+    const {token, isAdmin, paseto} = useAuth();
     const [open, setOpen] = useState(false);
-    const [selectedTeammate, setSelectedTeammate] = useState<string>("");
+    const [selectedTeammate, setSelectedTeammate] = useState<ent_User>({name: "No"});
     const newTeam = () => {
-        setSelectedTeammate("");
+        setSelectedTeammate({name: "No"});
         setOpen(true);
     }
 
     const queryClient = useQueryClient();
-    const usersQuery = useQuery('users', async () => UsersService.getUsersService(token));
+    const usersQuery = useQuery('users', async () => {
+        const data = await UsersService.getUsersService(token);
+        return data.filter(user => user.id !== paseto?.user_id);
+    });
     const teamsQuery = useQuery('teams', async () => TeamsService.getTeamsService(token))
-    const createTeam = useMutation('teams', async (teammateId?: string) => {
-        return await TeamsService.putTeamsService(token, teammateId)
+    const createTeam = useMutation('teams', async (values: ent_User) => {
+        return await TeamsService.putTeamsService(token, values.id)
     }, {
         onSuccess: async () => {
-            close();
+            setOpen(false);
             return await queryClient.invalidateQueries('teams');
         }
     });
 
+    const avatar = (name: string | undefined): string => {
+        if (name === undefined) {
+            return "";
+        }
+
+        const splited = name.split(" & ");
+        if (splited.length > 1) {
+            return `${splited[0].substr(0, 1).toUpperCase()}${splited[1].substr(0, 1).toUpperCase()}`;
+        } else {
+            return name.substr(0, 2).toUpperCase();
+        }
+    }
+
     return (
         <>
             <Spinner loading={usersQuery.isLoading || teamsQuery.isLoading || createTeam.isLoading}/>
-            <SectionHeader action={newTeam}>Teams</SectionHeader>
+            <SectionHeader action={newTeam}>{isAdmin() ? "Teams" : "My Teams"}</SectionHeader>
             <SlideOver open={open} close={() => setOpen(false)} title="Create New Team">
-                TODO
-                {/*<Formik
-                    initialValues={selectedUser}
-                    onSubmit={(values) => {
-                        saveUser.mutate({...values});
-                    }}>
+                <Formik initialValues={{}} onSubmit={() => {
+                    createTeam.mutate({...selectedTeammate});
+                }}>
                     <Form className="space-y-6">
-                        {selectedUser.id === undefined &&
-                        <SimpleField
-                            type="text"
-                            name="name"
-                            placeholder="John"
-                        >
-                            Name
-                        </SimpleField>
-                        }
-                        <SimpleField
-                            type="password"
-                            name="password"
-                            placeholder="**********"
-                        >
-                            Password
-                        </SimpleField>
+                        <Listbox value={selectedTeammate} onChange={setSelectedTeammate}>
+                            <Listbox.Label className="block text-sm font-medium text-gray-700">With a teammate?</Listbox.Label>
+                            <div className="mt-1 relative">
+                                <Listbox.Button
+                                    className="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <span className="flex items-center">
+                                        <span className="ml-3 block truncate">{selectedTeammate.name}</span>
+                                    </span>
+                                    <span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                                        <SelectorIcon className="h-5 w-5 text-gray-400" aria-hidden="true"/>
+                                    </span>
+                                </Listbox.Button>
+                                <Transition as={Fragment} leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+                                    <Listbox.Options
+                                        className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                        {usersQuery.isSuccess && usersQuery.data.map((user) => (
+                                            <Listbox.Option
+                                                key={user.id}
+                                                className={({active}) =>
+                                                    classNames(
+                                                        active ? 'text-white bg-indigo-600' : 'text-gray-900',
+                                                        'cursor-default select-none relative py-2 pl-3 pr-9'
+                                                    )
+                                                }
+                                                value={user}
+                                            >
+                                                {({selected, active}) => (
+                                                    <>
+                                                        <div className="flex items-center">
+                                                            <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'ml-3 block truncate')}>
+                                                                {user.name}
+                                                            </span>
+                                                        </div>
+                                                        {selected ? (
+                                                            <span
+                                                                className={classNames(
+                                                                    active ? 'text-white' : 'text-indigo-600',
+                                                                    'absolute inset-y-0 right-0 flex items-center pr-4'
+                                                                )}
+                                                            >
+                                                                <CheckIcon className="h-5 w-5" aria-hidden="true"/>
+                                                            </span>
+                                                        ) : null}
+                                                    </>
+                                                )}
+                                            </Listbox.Option>
+                                        ))}
+                                    </Listbox.Options>
+                                </Transition>
+                            </div>
+                        </Listbox>
                         <div>
                             <button type="submit" className="w-full btn btn-primary">
-                                Sign in
+                                Save
                             </button>
                         </div>
                     </Form>
-                </Formik>*/}
+                </Formik>
             </SlideOver>
             <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {teamsQuery.isSuccess && teamsQuery.data.map((team: ent_Team) => (
@@ -70,16 +123,15 @@ const Teams = () => {
                         className="col-span-1 flex flex-col text-center bg-white rounded-lg shadow divide-y divide-gray-200"
                     >
                         <div className="flex-1 flex flex-col p-8">
-                                <span className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-gray-500">
-                                    <span className="text-xl font-medium leading-none text-white">{team.name?.substr(0, 2).toUpperCase()}</span>
-                                </span>
+                            <span className="inline-flex items-center justify-center h-14 w-14 rounded-full bg-gray-500">
+                                <span className="text-xl font-medium leading-none text-white">{avatar(team.name)}</span>
+                            </span>
                             <h3 className="mt-6 text-gray-900 text-sm font-medium">{team.name}</h3>
                         </div>
                     </li>
                 ))}
             </ul>
         </>
-
     );
 };
 

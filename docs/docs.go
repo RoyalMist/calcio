@@ -182,7 +182,7 @@ var doc = `{
                         }
                     },
                     "500": {
-                        "description": "Something went wrong",
+                        "description": "Something went wrong, check that a team with the same name does not already exist",
                         "schema": {
                             "type": "string"
                         }

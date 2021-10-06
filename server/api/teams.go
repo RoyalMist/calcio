@@ -49,7 +49,7 @@ func (t Teams) list(ctx *fiber.Ctx) error {
 	teams, err := t.team.List(ctx.UserContext())
 	if err != nil {
 		t.log.Error(err)
-		return fiber.ErrBadRequest
+		return fiber.ErrInternalServerError
 	}
 
 	return ctx.JSON(teams)
@@ -63,7 +63,7 @@ func (t Teams) list(ctx *fiber.Ctx) error {
 // @Success 200 {object} ent.Team "The newly created team"
 // @Failure 400 {string} string "Authentication token is absent"
 // @Failure 401 {string} string "Invalid authentication token"
-// @Failure 500 {string} string "Something went wrong"
+// @Failure 500 {string} string "Something went wrong, check that a team with the same name does not already exist"
 // @Param Authorization header string true "The authentication token"
 // @Param teammate query string false "The teammate id"
 // @Router /api/teams [put]
@@ -72,7 +72,7 @@ func (t Teams) create(ctx *fiber.Ctx) error {
 	team, err := t.team.Create(teammate, ctx.UserContext())
 	if err != nil {
 		t.log.Error(err)
-		return fiber.ErrBadRequest
+		return fiber.ErrInternalServerError
 	}
 
 	return ctx.JSON(team)

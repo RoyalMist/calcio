@@ -76,7 +76,7 @@ function Users() {
                         </SimpleField>
                         <div>
                             <button type="submit" className="w-full btn btn-primary">
-                                Sign in
+                                Save
                             </button>
                         </div>
                     </Form>
