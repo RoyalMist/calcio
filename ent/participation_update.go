@@ -8,7 +8,6 @@ import (
 	"calcio/ent/predicate"
 	"calcio/ent/team"
 	"context"
-	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql"
@@ -57,6 +56,14 @@ func (pu *ParticipationUpdate) SetGameID(id uuid.UUID) *ParticipationUpdate {
 	return pu
 }
 
+// SetNillableGameID sets the "game" edge to the Game entity by ID if the given value is not nil.
+func (pu *ParticipationUpdate) SetNillableGameID(id *uuid.UUID) *ParticipationUpdate {
+	if id != nil {
+		pu = pu.SetGameID(*id)
+	}
+	return pu
+}
+
 // SetGame sets the "game" edge to the Game entity.
 func (pu *ParticipationUpdate) SetGame(g *Game) *ParticipationUpdate {
 	return pu.SetGameID(g.ID)
@@ -65,6 +72,14 @@ func (pu *ParticipationUpdate) SetGame(g *Game) *ParticipationUpdate {
 // SetTeamID sets the "team" edge to the Team entity by ID.
 func (pu *ParticipationUpdate) SetTeamID(id uuid.UUID) *ParticipationUpdate {
 	pu.mutation.SetTeamID(id)
+	return pu
+}
+
+// SetNillableTeamID sets the "team" edge to the Team entity by ID if the given value is not nil.
+func (pu *ParticipationUpdate) SetNillableTeamID(id *uuid.UUID) *ParticipationUpdate {
+	if id != nil {
+		pu = pu.SetTeamID(*id)
+	}
 	return pu
 }
 
@@ -156,12 +171,6 @@ func (pu *ParticipationUpdate) check() error {
 		if err := participation.GoalsValidator(v); err != nil {
 			return &ValidationError{Name: "goals", err: fmt.Errorf("ent: validator failed for field \"goals\": %w", err)}
 		}
-	}
-	if _, ok := pu.mutation.GameID(); pu.mutation.GameCleared() && !ok {
-		return errors.New("ent: clearing a required unique edge \"game\"")
-	}
-	if _, ok := pu.mutation.TeamID(); pu.mutation.TeamCleared() && !ok {
-		return errors.New("ent: clearing a required unique edge \"team\"")
 	}
 	return nil
 }
@@ -314,6 +323,14 @@ func (puo *ParticipationUpdateOne) SetGameID(id uuid.UUID) *ParticipationUpdateO
 	return puo
 }
 
+// SetNillableGameID sets the "game" edge to the Game entity by ID if the given value is not nil.
+func (puo *ParticipationUpdateOne) SetNillableGameID(id *uuid.UUID) *ParticipationUpdateOne {
+	if id != nil {
+		puo = puo.SetGameID(*id)
+	}
+	return puo
+}
+
 // SetGame sets the "game" edge to the Game entity.
 func (puo *ParticipationUpdateOne) SetGame(g *Game) *ParticipationUpdateOne {
 	return puo.SetGameID(g.ID)
@@ -322,6 +339,14 @@ func (puo *ParticipationUpdateOne) SetGame(g *Game) *ParticipationUpdateOne {
 // SetTeamID sets the "team" edge to the Team entity by ID.
 func (puo *ParticipationUpdateOne) SetTeamID(id uuid.UUID) *ParticipationUpdateOne {
 	puo.mutation.SetTeamID(id)
+	return puo
+}
+
+// SetNillableTeamID sets the "team" edge to the Team entity by ID if the given value is not nil.
+func (puo *ParticipationUpdateOne) SetNillableTeamID(id *uuid.UUID) *ParticipationUpdateOne {
+	if id != nil {
+		puo = puo.SetTeamID(*id)
+	}
 	return puo
 }
 
@@ -420,12 +445,6 @@ func (puo *ParticipationUpdateOne) check() error {
 		if err := participation.GoalsValidator(v); err != nil {
 			return &ValidationError{Name: "goals", err: fmt.Errorf("ent: validator failed for field \"goals\": %w", err)}
 		}
-	}
-	if _, ok := puo.mutation.GameID(); puo.mutation.GameCleared() && !ok {
-		return errors.New("ent: clearing a required unique edge \"game\"")
-	}
-	if _, ok := puo.mutation.TeamID(); puo.mutation.TeamCleared() && !ok {
-		return errors.New("ent: clearing a required unique edge \"team\"")
 	}
 	return nil
 }

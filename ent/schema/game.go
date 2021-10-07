@@ -27,7 +27,7 @@ func (Game) Fields() []ent.Field {
 // Edges of the Game.
 func (Game) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("participations", Participation.Type).Ref("game"),
+		edge.From("participations", Participation.Type).Required().Ref("game"),
 	}
 }
 

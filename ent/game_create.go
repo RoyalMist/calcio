@@ -152,6 +152,9 @@ func (gc *GameCreate) check() error {
 	if _, ok := gc.mutation.Date(); !ok {
 		return &ValidationError{Name: "date", err: errors.New(`ent: missing required field "date"`)}
 	}
+	if len(gc.mutation.ParticipationsIDs()) == 0 {
+		return &ValidationError{Name: "participations", err: errors.New("ent: missing required edge \"participations\"")}
+	}
 	return nil
 }
 

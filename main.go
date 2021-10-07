@@ -43,6 +43,7 @@ func main() {
 			api.GamesModule,
 			service.UserModule,
 			service.TeamModule,
+			service.GameModule,
 		),
 		fx.Invoke(setup),
 		fx.Invoke(run),

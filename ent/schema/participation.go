@@ -23,8 +23,8 @@ func (Participation) Fields() []ent.Field {
 // Edges of the Participation.
 func (Participation) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("game", Game.Type).Unique().Required(),
-		edge.To("team", Team.Type).Unique().Required(),
+		edge.To("game", Game.Type).Unique(),
+		edge.To("team", Team.Type).Unique(),
 	}
 }
 

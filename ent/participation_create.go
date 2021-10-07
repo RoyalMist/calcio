@@ -42,6 +42,14 @@ func (pc *ParticipationCreate) SetGameID(id uuid.UUID) *ParticipationCreate {
 	return pc
 }
 
+// SetNillableGameID sets the "game" edge to the Game entity by ID if the given value is not nil.
+func (pc *ParticipationCreate) SetNillableGameID(id *uuid.UUID) *ParticipationCreate {
+	if id != nil {
+		pc = pc.SetGameID(*id)
+	}
+	return pc
+}
+
 // SetGame sets the "game" edge to the Game entity.
 func (pc *ParticipationCreate) SetGame(g *Game) *ParticipationCreate {
 	return pc.SetGameID(g.ID)
@@ -50,6 +58,14 @@ func (pc *ParticipationCreate) SetGame(g *Game) *ParticipationCreate {
 // SetTeamID sets the "team" edge to the Team entity by ID.
 func (pc *ParticipationCreate) SetTeamID(id uuid.UUID) *ParticipationCreate {
 	pc.mutation.SetTeamID(id)
+	return pc
+}
+
+// SetNillableTeamID sets the "team" edge to the Team entity by ID if the given value is not nil.
+func (pc *ParticipationCreate) SetNillableTeamID(id *uuid.UUID) *ParticipationCreate {
+	if id != nil {
+		pc = pc.SetTeamID(*id)
+	}
 	return pc
 }
 
@@ -147,12 +163,6 @@ func (pc *ParticipationCreate) check() error {
 		if err := participation.GoalsValidator(v); err != nil {
 			return &ValidationError{Name: "goals", err: fmt.Errorf(`ent: validator failed for field "goals": %w`, err)}
 		}
-	}
-	if _, ok := pc.mutation.GameID(); !ok {
-		return &ValidationError{Name: "game", err: errors.New("ent: missing required edge \"game\"")}
-	}
-	if _, ok := pc.mutation.TeamID(); !ok {
-		return &ValidationError{Name: "team", err: errors.New("ent: missing required edge \"team\"")}
 	}
 	return nil
 }
