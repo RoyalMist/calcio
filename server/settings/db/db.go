@@ -31,7 +31,7 @@ func New(lifecycle fx.Lifecycle, config *config.Config, logger *zap.SugaredLogge
 	}
 
 	if err = client.Schema.Create(context.Background()); err != nil {
-		err = fmt.Errorf("impossible to migrate schema, %v", err)
+		err = fmt.Errorf("impossible to migrate schema for the given uri %s! %v", config.DbUrl(), err)
 		logger.Fatal(err)
 	}
 
