@@ -235,6 +235,48 @@ func TestUser_Create(t *testing.T) {
 	}
 }
 
+func TestUser_CreateDefaultAdmin(t *testing.T) {
+	logger := (zaptest.NewLogger(t)).Sugar()
+	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")
+	_ = client.Schema.Create(context.Background())
+	defer func(client *ent.Client) {
+		err := client.Close()
+		if err != nil {
+
+		}
+	}(client)
+	type args struct {
+		password string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			name:    "should not create a default admin user if the password is invalid",
+			args:    args{password: "yo"},
+			wantErr: true,
+		},
+		{
+			name:    "should create a default admin user if the password is valid",
+			args:    args{password: "password"},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			u := User{
+				log:    logger,
+				client: client,
+			}
+			if err := u.CreateDefaultAdmin(tt.args.password); (err != nil) != tt.wantErr {
+				t.Errorf("CreateDefaultAdmin() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
 func TestUser_Update(t *testing.T) {
 	logger := (zaptest.NewLogger(t)).Sugar()
 	client := enttest.Open(t, "sqlite3", "file:ent?mode=memory&cache=shared&_fk=1")

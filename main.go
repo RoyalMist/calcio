@@ -8,7 +8,6 @@ import (
 	"time"
 
 	_ "calcio/docs"
-	"calcio/ent"
 	_ "calcio/ent/runtime"
 	"calcio/server/api"
 	"calcio/server/security"
@@ -50,8 +49,8 @@ func main() {
 	).Run()
 }
 
-func setup(client *ent.Client) {
-	_ = security.CreateAdmin(client)
+func setup(user *service.User) {
+	_ = user.CreateDefaultAdmin("admin123")
 }
 
 func run(app *fiber.App, auth *api.Auth, users *api.Users, teams *api.Teams) {

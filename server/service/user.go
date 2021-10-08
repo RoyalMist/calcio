@@ -51,6 +51,16 @@ func (u User) Create(usr ent.User, ctx context.Context) (*ent.User, error) {
 	return u.client.User.Create().SetName(usr.Name).SetPassword(usr.Password).SetAdmin(usr.Admin).Save(ctx)
 }
 
+func (u User) CreateDefaultAdmin(password string) (err error) {
+	ctx := security.NewContext(context.Background(), security.Claims{
+		UserId:  uuid.NewString(),
+		IsAdmin: true,
+	})
+
+	_, err = u.client.User.Create().SetAdmin(true).SetName("admin").SetPassword(password).Save(ctx)
+	return
+}
+
 func (u User) Update(usr ent.User, ctx context.Context) (*ent.User, error) {
 	current, err := u.client.User.Query().Where(user.ID(usr.ID)).First(ctx)
 	if err != nil {
