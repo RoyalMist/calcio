@@ -1,11 +1,9 @@
 import React, {useState} from "react";
 import {PencilAltIcon, TrashIcon} from '@heroicons/react/solid'
-import Spinner from "../../components/spinner";
-import SectionHeader from "../../components/section-header";
+import Spinner from "../../components/Spinner";
+import SectionHeader from "../../components/SectionHeader";
 import {api_user, ent_User, UsersService} from "../../gen";
-import SlideOver from "../../components/slide-over";
-import {Form, Formik} from "formik";
-import SimpleField from "../../components/simple-field";
+import SlideOver from "../../components/SlideOver";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {useAuth} from "../../stores/authentication";
 

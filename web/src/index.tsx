@@ -3,10 +3,10 @@ import ReactDOM from 'react-dom'
 import './index.css'
 import {MutationCache, QueryCache, QueryClient, QueryClientProvider} from "react-query";
 import App from "./pages/app";
-import LoggedOutRoute from "./components/route/logged_out";
+import LoggedOutRoute from "./components/LoggedOutRoute";
 import {BrowserRouter as Router, Switch} from "react-router-dom";
 import Login from "./pages/login";
-import LoggedInRoute from "./components/route/logged_in";
+import LoggedInRoute from "./components/LoggedInRoute";
 import {DefaultRedirect} from "./pages/404";
 import {toast, Toaster} from "react-hot-toast";
 import {AuthProvider} from "./stores/authentication";

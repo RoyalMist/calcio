@@ -1,11 +1,10 @@
 import React, {Fragment, useState} from "react";
-import SectionHeader from "../../components/section-header";
+import SectionHeader from "../../components/SectionHeader";
 import {useAuth} from "../../stores/authentication";
-import Spinner from "../../components/spinner";
-import SlideOver from "../../components/slide-over";
+import Spinner from "../../components/Spinner";
+import SlideOver from "../../components/SlideOver";
 import {ent_Team, ent_User, TeamsService, UsersService} from "../../gen";
 import {useMutation, useQuery, useQueryClient} from "react-query";
-import {Form, Formik} from "formik";
 import {Listbox, Transition} from "@headlessui/react";
 import {CheckIcon, SelectorIcon} from "@heroicons/react/solid";
 import {classNames} from "../../utils/classes";

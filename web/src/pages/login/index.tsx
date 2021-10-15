@@ -1,17 +1,19 @@
-import {Form, Formik} from "formik";
 import React, {useEffect} from "react";
-import Spinner from "../../components/spinner";
-import Split from "../../components/split";
+import Spinner from "../../components/Spinner";
+import Split from "../../components/Split";
 import {useMutation} from "react-query";
-import SimpleField from "../../components/simple-field";
 import landing from "../../../images/landing.webp";
 import logo from "../../../images/logo.webp";
 import {AuthActionKind, useAuth} from "../../stores/authentication";
 import {api_login, AuthenticationService} from "../../gen";
+import {SubmitHandler, useForm} from "react-hook-form";
+import FormField from "../../components/FormField";
 
 function Login() {
-    const initialValues: api_login = {name: "", password: ""};
     const {dispatcher} = useAuth();
+    const {register, handleSubmit, formState: {errors}} = useForm<api_login>();
+    const onSubmit: SubmitHandler<api_login> = data => signIn.mutate(data);
+
     const signIn = useMutation(async (values: api_login) => {
         return await AuthenticationService.postAuthenticationService(values);
     });
@@ -32,33 +34,12 @@ function Login() {
                         <div className="mt-8">
                             <Split>Login</Split>
                             <div className="mt-6">
-                                <Formik
-                                    initialValues={initialValues}
-                                    onSubmit={(values) => {
-                                        signIn.mutate({...values});
-                                    }}>
-                                    <Form className="space-y-6">
-                                        <SimpleField
-                                            type="text"
-                                            name="name"
-                                            placeholder="John"
-                                        >
-                                            Name
-                                        </SimpleField>
-                                        <SimpleField
-                                            type="password"
-                                            name="password"
-                                            placeholder="**********"
-                                        >
-                                            Password
-                                        </SimpleField>
-                                        <div>
-                                            <button type="submit" className="w-full btn btn-primary">
-                                                Sign in
-                                            </button>
-                                        </div>
-                                    </Form>
-                                </Formik>
+                                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                                    <FormField form={register("name", {required: true})} error={errors.name} errorMessage="Please fill a name !" placeholder="John">Name</FormField>
+                                    <FormField form={register("password", {required: true})} error={errors.password} errorMessage="Please fill a password !" placeholder="********"
+                                               type="password">Password</FormField>
+                                    <button type="submit" className="w-full btn btn-primary">Sign in</button>
+                                </form>
                             </div>
                         </div>
                     </div>

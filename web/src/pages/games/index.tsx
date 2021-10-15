@@ -1,6 +1,6 @@
 import React from "react";
 import {toast} from "react-hot-toast";
-import SectionHeader from "../../components/section-header";
+import SectionHeader from "../../components/SectionHeader";
 
 const Games = () => {
     return (

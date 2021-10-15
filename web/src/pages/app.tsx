@@ -3,7 +3,7 @@ import {MenuIcon, XIcon} from "@heroicons/react/outline";
 import {ChartBarIcon, FireIcon, UserGroupIcon, UserIcon} from "@heroicons/react/solid";
 import React, {Fragment} from "react";
 import {Link, Switch, useLocation} from "react-router-dom";
-import LoggedInRoute from "../components/route/logged_in";
+import LoggedInRoute from "../components/LoggedInRoute";
 import {DASHBOARDS, GAMES, HOME, LOGOUT, TEAMS, USERS} from "../routes";
 import {classNames} from "../utils/classes";
 import {DefaultRedirect} from "./404";

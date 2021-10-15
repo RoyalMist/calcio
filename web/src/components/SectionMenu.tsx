@@ -1,6 +1,6 @@
 import React from "react";
 import {Link} from "react-router-dom";
-import {classNames} from "../../utils/classes";
+import {classNames} from "../utils/classes";
 
 interface MenuItem {
     name: string;

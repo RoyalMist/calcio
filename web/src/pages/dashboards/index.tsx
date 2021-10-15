@@ -1,7 +1,7 @@
 import React from "react";
 import {Switch, useLocation} from "react-router-dom";
-import LoggedInRoute from "../../components/route/logged_in";
-import SectionMenu from "../../components/section-menu";
+import LoggedInRoute from "../../components/LoggedInRoute";
+import SectionMenu from "../../components/SectionMenu";
 import {DefaultRedirect} from "../404";
 import Versus from "./versus";
 import Stats from "./stats";

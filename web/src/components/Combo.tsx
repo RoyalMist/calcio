@@ -1,7 +1,7 @@
 import {Listbox, Transition} from "@headlessui/react";
 import {ChevronDownIcon} from "@heroicons/react/solid";
 import React, {Fragment, useState} from "react";
-import {classNames} from "../../utils/classes";
+import {classNames} from "../utils/classes";
 
 interface ComboListOption {
     label: string;
