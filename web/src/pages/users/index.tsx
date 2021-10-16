@@ -6,18 +6,24 @@ import {api_user, ent_User, UsersService} from "../../gen";
 import SlideOver from "../../components/SlideOver";
 import {useMutation, useQuery, useQueryClient} from "react-query";
 import {useAuth} from "../../stores/authentication";
+import FormField from "../../components/FormField";
+import {SubmitHandler, useForm} from "react-hook-form";
 
 function Users() {
     const {token} = useAuth();
     const [open, setOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<api_user>({name: "", password: "", admin: false});
+    const {register, handleSubmit, formState: {errors}, reset} = useForm<api_user>();
+    const onSubmit: SubmitHandler<api_user> = data => saveUser.mutate(data);
 
     const newUser = () => {
+        reset();
         setSelectedUser({name: "", password: "", admin: false});
         setOpen(true);
     }
 
     const editUser = (user: api_user) => {
+        reset();
         setSelectedUser(user);
         setOpen(true);
     }
@@ -50,35 +56,30 @@ function Users() {
             <Spinner loading={usersQuery.isLoading || saveUser.isLoading}/>
             <SectionHeader action={newUser}>Users</SectionHeader>
             <SlideOver open={open} close={() => setOpen(false)} title="Edit User">
-                <Formik
-                    initialValues={selectedUser}
-                    onSubmit={(values) => {
-                        saveUser.mutate({...values});
-                    }}>
-                    <Form className="space-y-6">
-                        {selectedUser.id === undefined &&
-                        <SimpleField
-                            type="text"
-                            name="name"
-                            placeholder="John"
-                        >
-                            Name
-                        </SimpleField>
-                        }
-                        <SimpleField
-                            type="password"
-                            name="password"
-                            placeholder="**********"
-                        >
-                            Password
-                        </SimpleField>
-                        <div>
-                            <button type="submit" className="w-full btn btn-primary">
-                                Save
-                            </button>
-                        </div>
-                    </Form>
-                </Formik>
+                <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+                    {selectedUser.id === undefined &&
+                    <FormField
+                        // @ts-ignore
+                        form={register("name", {required: true})}
+                        error={errors.name}
+                        defaultValue={selectedUser.name}
+                        placeholder="John"
+                    >
+                        Name
+                    </FormField>
+                    }
+                    <FormField
+                        type="password"
+                        form={register("password", {required: true})}
+                        error={errors.password}
+                        placeholder="**********"
+                    >
+                        Password
+                    </FormField>
+                    <button type="submit" className="w-full btn btn-primary">
+                        Save
+                    </button>
+                </form>
             </SlideOver>
             <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                 {usersQuery.isSuccess && usersQuery.data.map((user: ent_User) => (

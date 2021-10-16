@@ -12,7 +12,7 @@ interface FormFieldProps {
     form: UseFormRegisterReturn;
 }
 
-const FormField = ({children, type = "text", error, errorMessage = "Error !", placeholder = "", defaultValue = "", form}: FormFieldProps) => {
+const FormField = ({children, type = "text", error, errorMessage = "Please fill this field!", placeholder = "", defaultValue = "", form}: FormFieldProps) => {
     return (
         <>
             <div className={`relative border rounded-md px-3 py-3 shadow-sm ${error != undefined ? "border-red-600" : "border-blue-600 focus-within:ring-1"}`}>
