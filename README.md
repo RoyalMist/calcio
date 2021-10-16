@@ -49,4 +49,3 @@ Api are available on http://localhost:4000.
 ## Improvements to be done
 
 * Frontend testing
-* Frontend forms validation with Yup
