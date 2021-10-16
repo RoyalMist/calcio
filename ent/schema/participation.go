@@ -4,6 +4,7 @@ import (
 	"calcio/ent/privacy"
 	"calcio/server/security"
 	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -23,8 +24,12 @@ func (Participation) Fields() []ent.Field {
 // Edges of the Participation.
 func (Participation) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("game", Game.Type).Unique(),
-		edge.To("team", Team.Type).Unique(),
+		edge.To("game", Game.Type).Unique().Annotations(entsql.Annotation{
+			OnDelete: entsql.Cascade,
+		}),
+		edge.To("team", Team.Type).Unique().Annotations(entsql.Annotation{
+			OnDelete: entsql.Cascade,
+		}),
 	}
 }
 

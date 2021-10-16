@@ -36,13 +36,13 @@ var (
 				Symbol:     "participations_games_game",
 				Columns:    []*schema.Column{ParticipationsColumns[2]},
 				RefColumns: []*schema.Column{GamesColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "participations_teams_team",
 				Columns:    []*schema.Column{ParticipationsColumns[3]},
 				RefColumns: []*schema.Column{TeamsColumns[0]},
-				OnDelete:   schema.SetNull,
+				OnDelete:   schema.Cascade,
 			},
 		},
 	}
