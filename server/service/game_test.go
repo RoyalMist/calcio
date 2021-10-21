@@ -114,6 +114,16 @@ func TestGame_Create(t *testing.T) {
 				ctx:   context.Background(),
 			},
 			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "an authenticated user should be able to create a game",
+			args: args{
+				teamA: teamA,
+				teamB: teamB,
+				ctx:   helpers.LoggedInCtx(false),
+			},
+			want:    &ent.Game{},
 			wantErr: false,
 		},
 	}
@@ -127,6 +137,10 @@ func TestGame_Create(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Create() error = %v, wantErr %v", err, tt.wantErr)
 				return
+			}
+			if tt.want != nil {
+				tt.want.ID = got.ID
+				tt.want.Date = got.Date
 			}
 			if !reflect.DeepEqual(fmt.Sprint(got), fmt.Sprint(tt.want)) {
 				t.Errorf("Create() got = %v, want %v", got, tt.want)
