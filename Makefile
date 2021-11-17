@@ -4,6 +4,7 @@ documentation:
 	go install github.com/swaggo/swag/cmd/swag@latest
 	go run github.com/swaggo/swag/cmd/swag@latest init
 	npm run gen:api --prefix web
+	npm run build --prefix web
 
 ent:
 	go install entgo.io/ent/cmd/ent@latest
@@ -19,7 +20,6 @@ dev: documentation
 	make -j 2 dev-front dev-back
 
 build: documentation
-	npm run build --prefix web
 	go build .
 
 quality:
