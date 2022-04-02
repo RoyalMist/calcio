@@ -1,10 +1,6 @@
 package main
 
 import (
-	"embed"
-	"io/fs"
-	"log"
-	"net/http"
 	"time"
 
 	_ "calcio/docs"
@@ -15,13 +11,9 @@ import (
 	"calcio/server/settings"
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/filesystem"
 	"github.com/gofiber/helmet/v2"
 	"go.uber.org/fx"
 )
-
-//go:embed web/dist
-var efs embed.FS
 
 // @title Calcio API
 // @version 1.0
@@ -59,14 +51,4 @@ func run(app *fiber.App, auth *api.Auth, users *api.Users, teams *api.Teams) {
 	users.Start(apiRouter.Group("/users"), security.IsAuthenticated)
 	teams.Start(apiRouter.Group("/teams"), security.IsAuthenticated)
 	apiRouter.Get("/doc/*", swagger.Handler)
-
-	web, err := fs.Sub(efs, "web/dist")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	app.Use(filesystem.New(filesystem.Config{
-		Root:         http.FS(web),
-		NotFoundFile: "index.html",
-	}))
 }
